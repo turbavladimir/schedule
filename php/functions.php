@@ -115,11 +115,15 @@ function storeTimestamp($timeString)
 	file_put_contents($tmpDir . "/timestamp/" . $_GET['group'], strtotime($timeString));
 }
 
-function appendDay(&$list, $day)
+function appendDay(&$list, $day, $nextWeek = false)
 {
 	global $invertWeekType;
 	$isLowWeek = date("W") % 2 == 0;
 	if ($invertWeekType)
+	{
+		$isLowWeek = !$isLowWeek;
+	}
+	if ($nextWeek)
 	{
 		$isLowWeek = !$isLowWeek;
 	}

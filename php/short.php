@@ -67,11 +67,18 @@ if ($weekDay == 5)
 {
 	$output[] = "Saturday";
 }
-for ($i = 0; $i < 6; $i++)
+for ($i = 0; $i < count($json); $i++)
 {
-	if (($i == $weekDay) || ($i == $weekDay + 1))
+	if (($i == $weekDay - 1) || ($i == $weekDay))
 	{
-		appendDay($output[], $json[$i]);
+		if (($weekDay == 0) && ($i == 0))
+		{
+			appendDay($output[], $json[$i], true);
+		}
+		else
+		{
+			appendDay($output[], $json[$i]);
+		}
 	}
 }
 if (count($output) < 2)
