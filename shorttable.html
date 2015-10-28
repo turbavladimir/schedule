@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Schedule</title>
+	<style>
+		table, td {
+			border: 1px solid black;
+			border-collapse: collapse;
+		}
+		td {
+			padding: 5px;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+	</div>
+	<script src="js/jquery.js"></script>
+	<script type="text/javascript">
+		days = ["Today", "Tommorow"]
+		$.ajax({
+			url: "php/short.php",
+			data: "group=4901",
+			success: function(data){
+				var response = $.parseJSON(data);
+				$("#container").append("<table>");
+				for (var i = 0 ; i < response.length; i++) {
+					var content = "<tr><td colspan=2 align=\"center\">" + days[i] + "</td></tr>";
+					if (typeof(response[i]) == "string") {
+						content += "<tr><td colspan=2 align=\"center\">" + "Nothing for " + response[i] + "</td></tr>";
+					} else {
+						for (var j = 0; j < response[i].schedule.length; j++) {
+							content += "<tr><td>" + response[i].time[j] + "</td><td>" + response[i].schedule[j] + "</td></tr>";
+						}
+					}
+					$("#container").append(content);
+				}
+				$("#container").append("</table>");
+			}
+		});
+	</script>
+</body>
+<html>
