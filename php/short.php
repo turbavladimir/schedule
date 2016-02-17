@@ -12,7 +12,6 @@ require_once "functions.php";
 //check arguments
 if (empty($_GET['group']))
 {
-	//throw 'no group' error
 	echo "E1";
 	exit;
 }
@@ -69,19 +68,21 @@ if ($weekDay == 0)
 {
 	$output[] = "Sunday";
 }
-for ($i = 0; $i < count($json); $i++)
+$i = 0;
+foreach ($json as $item)
 {
 	if (($i == $weekDay - 1) || ($i == $weekDay))
 	{
 		if (($weekDay == 0) && ($i == 0))
 		{
-			appendDay($output[], $json[$i], true);
+			appendDay($output[], $item, true);
 		}
 		else
 		{
-			appendDay($output[], $json[$i]);
+			appendDay($output[], $item);
 		}
 	}
+	$i++;
 }
 if (count($output) < 2)
 {
