@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Schedule</title>
+	<title>Расписание ПТК НовГУ</title>
 	<style>
 		table, td {
 			border: 1px solid black;
@@ -16,30 +16,62 @@
 	</style>
 </head>
 <body>
-	<div id="container">
-	</div>
+	<h3>Расписание для группы: <select id="groups"></select></h3>
+	<div id="container"></div>
 	<script src="js/jquery.js"></script>
+	<script src="js/jquery.cookie.js"></script>
 	<script type="text/javascript">
-		days = ["Today", "Tommorow"]
-		$.ajax({
-			url: "php/short.php",
-			data: "group=4901",
-			success: function(data){
-				var response = $.parseJSON(data);
-				$("#container").append("<table>");
-				for (var i = 0 ; i < response.length; i++) {
-					var content = "<tr><td colspan=2 align=\"center\">" + days[i] + "</td></tr>";
-					if (typeof(response[i]) == "string") {
-						content += "<tr><td colspan=2 align=\"center\">" + "Nothing for " + response[i] + "</td></tr>";
-					} else {
-						for (var j = 0; j < response[i].schedule.length; j++) {
-							content += "<tr><td>" + response[i].time[j] + "</td><td>" + response[i].schedule[j] + "</td></tr>";
+		days = ["Сегодня", "Завтра"];
+
+		function loadSchedule(group) {
+			$.ajax({
+				url: "php/short.php",
+				data: "group=" + group,
+				success: function(data){
+					var response = $.parseJSON(data);
+					$("#container").html("<table>");
+					for (var i = 0 ; i < response.length; i++) {
+						var content = "<tr><td colspan=2 align=\"center\">" + days[i] + "</td></tr>";
+						if (typeof(response[i]) == "string") {
+							if (response[i] == "Saturday") {
+								day = "субботу";
+							} else {
+								day = "воскресенье";
+							}
+							content += "<tr><td colspan=2 align=\"center\">" + "Ничего на " + day + "</td></tr>";
+						} else {
+							for (var j = 0; j < response[i].schedule.length; j++) {
+								content += "<tr><td>" + response[i].time[j] + "</td><td>" + response[i].schedule[j] + "</td></tr>";
+							}
 						}
+						$("#container").append(content);
 					}
-					$("#container").append(content);
+					$("#container").append("</table>");
 				}
-				$("#container").append("</table>");
+			});
+		}
+
+		$.ajax({
+			url: "groupList",
+			dataType: "text",
+			success: function(data){
+				var groups = data.match(/[^\r\n]+/g);
+				var defaultGroup = $.cookie("group");
+				if ($.inArray(defaultGroup, groups) < 0) {
+					defaultGroup = groups[0];
+					$.cookie("group", defaultGroup);
+				}
+				for (var i = 0; i < groups.length; i++) {
+					$("#groups").append("<option value=\"" + groups[i] + "\">" + groups[i] + "</option>");
+				}
+				$("#groups").val(defaultGroup);
+				loadSchedule(defaultGroup);
 			}
+		});
+
+		$("#groups").change(function() {
+			loadSchedule($(this).val());
+			$.cookie("group", $(this).val());
 		});
 	</script>
 </body>

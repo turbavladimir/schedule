@@ -12,8 +12,7 @@ require_once "functions.php";
 //check arguments
 if (empty($_GET['group']))
 {
-	//throw 'no group' error
-	echo "E1";
+	echo "Error: no group specified";
 	exit;
 }
 

@@ -70,7 +70,7 @@ function updateCache($filename)
 	if ($groupCell[0] == -1)
 	{
 		error_log("failed to find group " . $_GET['group'] . " in xls file");
-		echo "E2";
+		echo "Failed to find group in xls file";
 		exit;
 	}
 
@@ -96,12 +96,12 @@ function updateCache($filename)
 			continue;
 		}
 
-		$output[]["schedule"] = getScheduleOfRowRange($sheet, $timeCol, $groupCell[0], $range);
-		$output[count($output) - 1]["time"] = getCallsSchedule($sheet, $timeCol, $range);
+		$output["days"][]["schedule"] = getScheduleOfRowRange($sheet, $timeCol, $groupCell[0], $range);
+		$output["days"][count($output["days"]) - 1]["time"] = getCallsSchedule($sheet, $timeCol, $range);
 	}
 
-	removeEmptyDays($output);
-	removeEmptyEndings($output);
+	removeEmptyDays($output["days"]);
+	removeEmptyEndings($output["days"]);
 
 	$isLowWeek = date("W") % 2 == 0;
 	if ($invertWeekType)

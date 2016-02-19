@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Schedule</title>
+	<title>Расписание ПТК НовГУ</title>
 	<style>
 		table, th, td {
 			border: 1px solid black;
@@ -19,17 +19,29 @@
 		th {
 			font-family: "Times New Roman", Times, sans-serif;
 			padding: 5px;
+			max-width: 1em;
+			vertical-align: bottom;
 		}
 		td {
 			padding: 5px;
 		}
+		.rotate {
+			-moz-transform: rotate(-90.0deg);
+			-o-transform: rotate(-90.0deg);
+			-webkit-transform: rotate(-90.0deg);
+			transform: rotate(-90.0deg);
+		}
 	</style>
 </head>
 <body>
-	<div id="container">
-	</div>
+	<h3>Расписание для группы: <select id="groups"></select></h3>
+	<h4>Текущаяя неделя: <span id="weekType"></span></h4>
+	<div id="container"></div>
 	<script src="js/jquery.js"></script>
+	<script src="js/jquery.cookie.js"></script>
 	<script type="text/javascript">
+		var days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+
 		function sizeOf(obj) {
 			var size = 0;
 			for (var i = 0; i < obj.length; i++) {
@@ -41,35 +53,66 @@
 			}
 			return size;
 		};
-		var days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
-		$.ajax({
-			url: "php/full.php",
-			data: "group=4901",
-			success: function(data){
-				var response = $.parseJSON(data);
-				$("#container").append("<table>");
-				for (var i = 0 ; i < response.length; i++) {
-					var content = "<tr><th rowspan=" + sizeOf(response[i].schedule) + ">" + days[i] + "</th>";
-					if (typeof(response[i].schedule[0]) == "string") {
-						content += "<td>" + response[i].time[0] + "</td><td>" + response[i].schedule[0] + "</tr>";
-					} else {
-						content += "<td rowspan=\"2\">" + response[i].time[0] + "</td><td  class=\"mergedTop\">" + response[i].schedule[0].top + "</tr><tr><td  class=\"mergedBottom\">" + response[i].schedule[0].bottom + "</td>";
-					}
-					content += "</tr>"
 
-					for (var j = 1; j < response[i].schedule.length; j++) {
-						content += "<tr>"
-						if (typeof(response[i].schedule[j]) == "string") {
-							content += "<td>" + response[i].time[j] + "</td><td>" + response[i].schedule[j] + "</td>";
+		function loadSchedule(group) {
+			$.ajax({
+				url: "php/full.php",
+				data: "group=" + group,
+				success: function(data){
+					var response = $.parseJSON(data);
+					if (response.lowWeek) {
+						$("#weekType").html("нинжяя");
+					} else {
+						$("#weekType").html("верхняя");
+					}
+
+					$("#container").html("<table>");
+					for (var i = 0 ; i < response.days.length; i++) {
+						var content = "<tr><th rowspan=" + sizeOf(response.days[i].schedule) + "><p class=\"rotate\">" + days[i] + "</p></th>";
+						if (typeof(response.days[i].schedule[0]) == "string") {
+							content += "<td>" + response.days[i].time[0] + "</td><td>" + response.days[i].schedule[0] + "</tr>";
 						} else {
-							content += "<td rowspan=2>" + response[i].time[j] + "</td><td  class=\"mergedTop\">" + response[i].schedule[j].top + "</td></tr><tr><td  class=\"mergedBottom\">" + response[i].schedule[j].bottom + "</td>";
+							content += "<td rowspan=\"2\">" + response.days[i].time[0] + "</td><td  class=\"mergedTop\">" + response.days[i].schedule[0].top + "</tr><tr><td  class=\"mergedBottom\">" + response.days[i].schedule[0].bottom + "</td>";
 						}
 						content += "</tr>"
+
+						for (var j = 1; j < response.days[i].schedule.length; j++) {
+							content += "<tr>"
+							if (typeof(response.days[i].schedule[j]) == "string") {
+								content += "<td>" + response.days[i].time[j] + "</td><td>" + response.days[i].schedule[j] + "</td>";
+							} else {
+								content += "<td rowspan=2>" + response.days[i].time[j] + "</td><td  class=\"mergedTop\">" + response.days[i].schedule[j].top + "</td></tr><tr><td  class=\"mergedBottom\">" + response.days[i].schedule[j].bottom + "</td>";
+							}
+							content += "</tr>"
+						}
+						$("#container").append(content);
 					}
-					$("#container").append(content);
+					$("#container").append("</table>");
 				}
-				$("#container").append("</table>");
+			});
+		}
+
+		$.ajax({
+			url: "groupList",
+			dataType: "text",
+			success: function(data){
+				var groups = data.match(/[^\r\n]+/g);
+				var defaultGroup = $.cookie("group");
+				if ($.inArray(defaultGroup, groups) < 0) {
+					defaultGroup = groups[0];
+					$.cookie("group", defaultGroup);
+				}
+				for (var i = 0; i < groups.length; i++) {
+					$("#groups").append("<option value=\"" + groups[i] + "\">" + groups[i] + "</option>");
+				}
+				$("#groups").val(defaultGroup);
+				loadSchedule(defaultGroup);
 			}
+		});
+
+		$("#groups").change(function() {
+			loadSchedule($(this).val());
+			$.cookie("group", $(this).val());
 		});
 	</script>
 </body>

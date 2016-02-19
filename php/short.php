@@ -12,7 +12,7 @@ require_once "functions.php";
 //check arguments
 if (empty($_GET['group']))
 {
-	echo "E1";
+	echo "Error: no group specified";
 	exit;
 }
 
@@ -69,7 +69,7 @@ if ($weekDay == 0)
 	$output[] = "Sunday";
 }
 $i = 0;
-foreach ($json as $item)
+foreach ($json->days as $item)
 {
 	if (($i == $weekDay - 1) || ($i == $weekDay))
 	{
