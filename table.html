@@ -35,7 +35,7 @@
 </head>
 <body>
 	<h3>Расписание для группы: <select id="groups"></select></h3>
-	<h4>Текущаяя неделя: <span id="weekType"></span></h4>
+	<h4>Текущая неделя: <span id="weekType"></span></h4>
 	<div id="container"></div>
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.cookie.js"></script>
@@ -61,7 +61,7 @@
 				success: function(data){
 					var response = $.parseJSON(data);
 					if (response.lowWeek) {
-						$("#weekType").html("нинжяя");
+						$("#weekType").html("нижняя");
 					} else {
 						$("#weekType").html("верхняя");
 					}
