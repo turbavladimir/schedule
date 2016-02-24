@@ -103,13 +103,6 @@ function updateCache($filename)
 	removeEmptyDays($output["days"]);
 	removeEmptyEndings($output["days"]);
 
-	$isLowWeek = date("W") % 2 == 0;
-	if ($invertWeekType)
-	{
-		$isLowWeek = !$isLowWeek;
-	}
-	$output["lowWeek"] = $isLowWeek;
-
 	mkdir($tmpDir . "/json", 0755, true);
 	$jsonFile = $tmpDir . "/json/" . $_GET['group'];
 	file_put_contents($jsonFile, json_encode($output, $jsonFlags));

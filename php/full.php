@@ -57,6 +57,16 @@ else
 }
 
 //load cache and send to user
-echo file_get_contents($tmpDir . "/json/" . $_GET['group']);
+$cache =  json_decode(file_get_contents($tmpDir . "/json/" . $_GET['group']), true);
+
+
+$isLowWeek = date("W") % 2 == 0;
+if ($invertWeekType)
+{
+	$isLowWeek = !$isLowWeek;
+}
+$cache["lowWeek"] = $isLowWeek;
+
+echo json_encode($cache, $jsonFlags);
 
 ?>
