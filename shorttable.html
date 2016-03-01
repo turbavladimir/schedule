@@ -13,6 +13,10 @@
 		td {
 			padding: 5px;
 		}
+		.time {
+			margin: 0 auto;
+			text-align: center;
+		}
 	</style>
 </head>
 <body>
@@ -27,7 +31,7 @@
 			$.ajax({
 				url: "php/short.php",
 				data: "group=" + group,
-				success: function(data){
+				success: function(data) {
 					var response = $.parseJSON(data);
 					$("#container").html("<table>");
 					for (var i = 0 ; i < response.length; i++) {
@@ -41,7 +45,9 @@
 							content += "<tr><td colspan=2 align=\"center\">" + "Ничего на " + day + "</td></tr>";
 						} else {
 							for (var j = 0; j < response[i].schedule.length; j++) {
-								content += "<tr><td>" + response[i].time[j] + "</td><td>" + response[i].schedule[j] + "</td></tr>";
+								time = response[i].time[j].split("-");
+								content += "<tr><td><p class=\"time\">" + time[0] + "</p><p class=\"time\">" +
+											time[1] + "</p></td><td>" + response[i].schedule[j] + "</td></tr>";
 							}
 						}
 						$("#container").append(content);
