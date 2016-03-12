@@ -60,13 +60,16 @@ $json = json_decode(file_get_contents($tmpDir . "/json/" . $_GET['group']));
 
 $weekDay = date("w");
 $output = [];
-if ($weekDay == 6)
+if (count($json->days) < 6)
 {
-	$output[] = "Saturday";
-}
-if ($weekDay == 0)
-{
-	$output[] = "Sunday";
+	if ($weekDay == 6)
+	{
+		$output[] = "Saturday";
+	}
+	if ($weekDay == 0)
+	{
+		$output[] = "Sunday";
+	}
 }
 $i = 0;
 foreach ($json->days as $item)
@@ -95,6 +98,5 @@ if (count($output) < 2)
 		$output[] = "Sunday";
 	}
 }
-
 echo json_encode($output, $jsonFlags);
 ?>
