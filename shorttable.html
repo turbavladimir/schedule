@@ -65,7 +65,7 @@
 				var defaultGroup = $.cookie("group");
 				if ($.inArray(defaultGroup, groups) < 0) {
 					defaultGroup = groups[0];
-					$.cookie("group", defaultGroup);
+					$.cookie("group", defaultGroup, {expires: 365});
 				}
 				for (var i = 0; i < groups.length; i++) {
 					$("#groups").append("<option value=\"" + groups[i] + "\">" + groups[i] + "</option>");
@@ -77,7 +77,7 @@
 
 		$("#groups").change(function() {
 			loadSchedule($(this).val());
-			$.cookie("group", $(this).val());
+			$.cookie("group", $(this).val(), {expires: 365});
 		});
 	</script>
 	<script type="text/javascript">
