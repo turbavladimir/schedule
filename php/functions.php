@@ -103,7 +103,9 @@ function updateCache($filename)
 	removeEmptyDays($output["days"]);
 	removeEmptyEndings($output["days"]);
 
-	mkdir($tmpDir . "/json", 0755, true);
+	if (!file_exists($tmpDir . "/json")) {
+		mkdir($tmpDir . "/json", 0755, true);
+	}
 	$jsonFile = $tmpDir . "/json/" . $_GET['group'];
 	file_put_contents($jsonFile, json_encode($output, $jsonFlags));
 }
@@ -111,7 +113,9 @@ function updateCache($filename)
 function storeTimestamp($timeString)
 {
 	global $tmpDir;
-	mkdir($tmpDir . "/timestamp", 0755, true);
+	if (!file_exists($tmpDir . "/timestamp")) {
+		mkdir($tmpDir . "/timestamp", 0755, true);
+	}
 	file_put_contents($tmpDir . "/timestamp/" . $_GET['group'], strtotime($timeString));
 }
 

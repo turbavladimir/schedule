@@ -38,7 +38,9 @@ if (isCacheExist())
 	$timestamp = strtotime($match[2]);
 	if ($timestamp > getCacheTimestamp())
 	{
-		mkdir($tmpDir . "/xls", 0755, true);
+		if (!file_exists($tmpDir . "/xls")) {
+			mkdir($tmpDir . "/xls", 0755, true);
+		}
 		file_put_contents($tmpDir . "/xls/" . $filename, fopen($url . "/" . $match[1], "r"));
 		updateCache($filename);
 		storeTimestamp($match[2]);
@@ -48,7 +50,9 @@ else
 {
 	if (!file_exists($tmpDir . "/xls/" . $filename))
 	{
-		mkdir($tmpDir . "/xls", 0755, true);
+		if (!file_exists($tmpDir . "/xls")) {
+			mkdir($tmpDir . "/xls", 0755, true);
+		}
 		file_put_contents($tmpDir . "/xls/" . $filename, fopen($url . "/" . $match[1], "r"));
 	}
 
