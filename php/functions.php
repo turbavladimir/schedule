@@ -27,7 +27,7 @@ function isCacheExist()
 function getCacheTimestamp()
 {
 	global $tmpDir;
-	return file_get_contents($tmpDir . "/timestamp/" . $_GET['group']);//WARNING: not sure about data types
+	return file_get_contents($tmpDir . "/timestamp/" . $_GET['group']);
 }
 
 function removeEmptyDays(&$days)
@@ -53,12 +53,18 @@ function removeEmptyEndings(&$days)
 {
 	foreach ($days as &$day)
 	{
-		while ($day["schedule"][count($day) - 1] == NULL)
+		while ($day["schedule"][count($day["schedule"]) - 1] == NULL ||
+			   $day["schedule"][count($day["schedule"]) - 1] == "&nbsp;")
 		{
 			array_pop($day["schedule"]);
 			array_pop($day["time"]);
 		}
+		$timeScheduleDiff = count($day["schedule"]) - count($day["time"]);
+		if ($timeScheduleDiff < 0) {
+			$day["time"] = array_slice($day["time"], 0, $timeScheduleDiff);
+		}
 	}
+
 }
 
 function updateCache($filename)

@@ -101,7 +101,7 @@ function getBorderRowsOfMergedCell($sheet, $col, $row)
 	return [-1];
 }
 
-function replceEmptinesAliases(&$item, $key)
+function replaceEmptinesAliases(&$item, $key)
 {
 	global $emptinessAliases;
 	foreach ($emptinessAliases as $alias)
@@ -142,7 +142,6 @@ function getCallsSchedule($sheet, $timeCol, $range)
 
 function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 {
-	global $emptinessAliases;
 	$output = [];
 
 	for ($i = $range[0]; $i <= $range[1]; $i++)
@@ -170,7 +169,7 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 					{
 						$offset++;
 					}
-					$output[] = ["top" => $topItem, 
+					$output[] = ["top" => $topItem,
 					"bottom" => getCellValue($sheet, $itemCol, $i + $offset)];
 					$i += $offset;
 				}
@@ -183,7 +182,7 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 				{
 					$lowWeekOffset++;
 				}
-				$output[] = ["top" => $topItem, 
+				$output[] = ["top" => $topItem,
 					"bottom" => getCellValue($sheet, $itemCol, $i + $lowWeekOffset)];
 				$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
 				$i += $timeBorders[1] - $timeBorders[0];
@@ -194,7 +193,7 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 			$output[] = getCellValue($sheet, $itemCol, $i);
 		}
 
-		array_walk_recursive($output, "replceEmptinesAliases");
+		array_walk_recursive($output, "replaceEmptinesAliases");
 	}
 
 	return $output;
