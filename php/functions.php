@@ -63,6 +63,9 @@ function removeEmptyEndings(&$days)
 		if ($timeScheduleDiff < 0) {
 			$day["time"] = array_slice($day["time"], 0, $timeScheduleDiff);
 		}
+		if ($timeScheduleDiff > 0) {
+			$day["schedule"] = array_slice($day["schedule"], 0, -$timeScheduleDiff);
+		}
 	}
 
 }
