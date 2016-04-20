@@ -169,8 +169,10 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 					{
 						$offset++;
 					}
-					$output[] = ["top" => $topItem,
-					"bottom" => getCellValue($sheet, $itemCol, $i + $offset)];
+					$output[] = [
+						"top" => $topItem,
+						"bottom" => getCellValue($sheet, $itemCol, $i + $offset)
+					];
 					$i += $offset;
 				}
 			}
@@ -182,8 +184,10 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 				{
 					$lowWeekOffset++;
 				}
-				$output[] = ["top" => $topItem,
-					"bottom" => getCellValue($sheet, $itemCol, $i + $lowWeekOffset)];
+				$output[] = [
+					"top" => $topItem,
+					"bottom" => getCellValue($sheet, $itemCol, $i + $lowWeekOffset)
+				];
 				$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
 				$i += $timeBorders[1] - $timeBorders[0];
 			}
