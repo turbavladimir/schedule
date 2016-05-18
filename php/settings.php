@@ -6,7 +6,7 @@
 *@copyright 2015 Vladimir Turba
 */
 
-$tmpDir = "/var/tmp/schedule";
+$tmpDir = "/tmp/schedule";
 $url = "http://novsu.ru";
 $timeTable = "/univer/timetable/spo";
 $emptinessAliases = ["/\_*/", "/\-*/"];
