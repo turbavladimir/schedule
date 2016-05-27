@@ -3,7 +3,7 @@
 /*
 *It's a part of PTK NovSU schedule site page
 *@author Vladimir Turba <turbavladimir@yandex.ru>
-*@copyright 2015 Vladimir Turba
+*@copyright 2016 Vladimir Turba
 */
 
 if (file_exists('settings.php')) {
@@ -16,50 +16,39 @@ require_once "PHPExcel.php";
 require_once "PHPExcel/IOFactory.php";
 
 
-function isCacheExist()
-{
+function isCacheExist() {
 	global $tmpDir;
 	if ((file_exists($tmpDir . "/json/" . $_GET['group'])) &
-		(file_exists($tmpDir . "/timestamp/" . $_GET['group'])))
-	{
+		(file_exists($tmpDir . "/timestamp/" . $_GET['group']))) {
 		return true;
 	}
 
 	return false;
 }
 
-function getCacheTimestamp()
-{
+function getCacheTimestamp() {
 	global $tmpDir;
 	return file_get_contents($tmpDir . "/timestamp/" . $_GET['group']);
 }
 
-function removeEmptyDays(&$days)
-{
-	foreach ($days as $day)
-	{
+function removeEmptyDays(&$days) {
+	foreach ($days as $day) {
 		$isEmpty = true;
-		for ($i = 0; $i < count($day["schedule"]) - 1; $i++)
-		{
-			if ($day["schedule"][$i] != "")
-			{
+		for ($i = 0; $i < count($day["schedule"]) - 1; $i++) {
+			if ($day["schedule"][$i] != "") {
 				$isEmpty = false;
 			}
 		}
-		if ($isEmpty)
-		{
+		if ($isEmpty) {
 			array_pop($days);
 		}
 	}
 }
 
-function removeEmptyEndings(&$days)
-{
-	foreach ($days as &$day)
-	{
+function removeEmptyEndings(&$days) {
+	foreach ($days as &$day) {
 		while ($day["schedule"][count($day["schedule"]) - 1] == NULL ||
-			   $day["schedule"][count($day["schedule"]) - 1] == "&nbsp;")
-		{
+			   $day["schedule"][count($day["schedule"]) - 1] == "&nbsp;") {
 			array_pop($day["schedule"]);
 			array_pop($day["time"]);
 		}
@@ -74,14 +63,12 @@ function removeEmptyEndings(&$days)
 
 }
 
-function updateCache($filename)
-{
+function updateCache($filename) {
 	global $tmpDir, $jsonFlags, $timePattern, $invertWeekType;
 	$xls = PHPExcel_IOFactory::load($tmpDir . "/xls/" . $filename);
 	$sheet = $xls->getActiveSheet();
 	$groupCell = getGroupCell($sheet);
-	if ($groupCell[0] == -1)
-	{
+	if ($groupCell[0] == -1) {
 		error_log("failed to find group " . $_GET['group'] . " in xls file");
 		echo "Failed to find group in xls file";
 		exit;
@@ -90,22 +77,17 @@ function updateCache($filename)
 	$ranges = getWeekDayRanges($sheet, $groupCell[1] + 1);
 
 	$timeCol = $groupCell[0] - 1;
-	if (!empty($_GET['timeCol']))
-	{
+	if (!empty($_GET['timeCol'])) {
 		$timeCol = $_GET['timeCol'];
 	}
-	else
-	{
-		if (!preg_match($timePattern, getCellValue($sheet, $groupCell[0] - 1, $groupCell[1] + 1)))
-		{
+	else {
+		if (!preg_match($timePattern, getCellValue($sheet, $groupCell[0] - 1, $groupCell[1] + 1))) {
 			$timeCol = getTimeCol($sheet, $timeCol, $groupCell[1] + 1);
 		}
 	}
 
-	foreach ($ranges as $range)
-	{
-		if ($range[1] - $range[0] <= 0)
-		{
+	foreach ($ranges as $range) {
+		if ($range[1] - $range[0] <= 0) {
 			continue;
 		}
 
@@ -123,8 +105,7 @@ function updateCache($filename)
 	file_put_contents($jsonFile, json_encode($output, $jsonFlags));
 }
 
-function storeTimestamp($timeString)
-{
+function storeTimestamp($timeString) {
 	global $tmpDir;
 	if (!file_exists($tmpDir . "/timestamp")) {
 		mkdir($tmpDir . "/timestamp", 0755, true);
@@ -132,43 +113,32 @@ function storeTimestamp($timeString)
 	file_put_contents($tmpDir . "/timestamp/" . $_GET['group'], strtotime($timeString));
 }
 
-function appendDay(&$list, $day, $nextWeek = false)
-{
+function appendDay(&$list, $day, $nextWeek = false) {
 	global $invertWeekType;
 	$isLowWeek = date("W") % 2 == 0;
-	if ($invertWeekType)
-	{
+	if ($invertWeekType) {
 		$isLowWeek = !$isLowWeek;
 	}
-	if ($nextWeek)
-	{
+	if ($nextWeek) {
 		$isLowWeek = !$isLowWeek;
 	}
-	foreach ($day->schedule as $item)
-	{
-		if (gettype($item) == "object")
-		{
-			if ($isLowWeek)
-			{
+	foreach ($day->schedule as $item) {
+		if (gettype($item) == "object") {
+			if ($isLowWeek) {
 				$list["schedule"][] = $item->bottom;
 			}
-			else
-			{
+			else {
 				$list["schedule"][] = $item->top;
 			}
 		}
-		else
-		{
+		else {
 			$list["schedule"][] = $item;
 		}
 	}
 	$list["time"] = $day->time;
 
-	while ($list["schedule"][count($list["schedule"]) - 1] == "&nbsp;")
-	{
+	while ($list["schedule"][count($list["schedule"]) - 1] == "&nbsp;") {
 		array_pop($list["schedule"]);
 		array_pop($list["time"]);
 	}
 }
-
-?>

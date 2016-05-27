@@ -3,7 +3,7 @@
 /*
 *It's a part of PTK NovSU schedule site page
 *@author Vladimir Turba <turbavladimir@yandex.ru>
-*@copyright 2015 Vladimir Turba
+*@copyright 2016 Vladimir Turba
 */
 
 if (file_exists('settings.php')) {
@@ -14,8 +14,7 @@ if (file_exists('settings.php')) {
 require_once "functions.php";
 
 //check arguments
-if (empty($_GET['group']))
-{
+if (empty($_GET['group'])) {
 	die(json_encode(['error' => 'no group specified']));
 }
 
@@ -27,28 +26,23 @@ if (file_exists("../custom")) {
 if (in_array($_GET['group'], $customGroups)) {
 	$json =  json_decode(file_get_contents("../custom/" . $_GET['group']), true);
 }
-else
-{
+else {
 	$page = file_get_contents($url . $timeTable);
 	preg_match($groupPattern, $_GET['group'], $groupMatch);
 	//get match with relative xls file url and last update time
-	if (!preg_match("/<a href=\"(.*)\" title=\"(.*)\">" . $groupMatch[0] . "<\/a>/", $page, $match))
-	{
+	if (!preg_match("/<a href=\"(.*)\" title=\"(.*)\">" . $groupMatch[0] . "<\/a>/", $page, $match)) {
 		die(json_encode(['error' => 'failed to parse schedule version in timetable']));
 	}
-	if (!preg_match("/ptk\/(.*)\?/", $match[1], $filenameMatch))
-	{
+	if (!preg_match("/ptk\/(.*)\?/", $match[1], $filenameMatch)) {
 		die(json_encode(['error' => 'failed to parse xls filename']));
 	}
 	$filename = $filenameMatch[1];
 
 	//generate or update cache if needed
-	if (isCacheExist())
-	{
+	if (isCacheExist()) {
 		//check schedule version
 		$timestamp = strtotime($match[2]);
-		if ($timestamp > getCacheTimestamp())
-		{
+		if ($timestamp > getCacheTimestamp()) {
 			if (!file_exists($tmpDir . "/xls")) {
 				mkdir($tmpDir . "/xls", 0755, true);
 			}
@@ -57,10 +51,8 @@ else
 			storeTimestamp($match[2]);
 		}
 	}
-	else
-	{
-		if (!file_exists($tmpDir . "/xls/" . $filename))
-		{
+	else {
+		if (!file_exists($tmpDir . "/xls/" . $filename)) {
 			if (!file_exists($tmpDir . "/xls")) {
 				mkdir($tmpDir . "/xls", 0755, true);
 			}
@@ -76,50 +68,39 @@ else
 if (isset($_GET['short'])) {
 	$weekDay = date("w");
 	$output = [];
-	if (count($json->days) < 6)
-	{
-		if ($weekDay == 6)
-		{
-			$output[] = "Saturday";
+	if (count($json->days) < 6) {
+		if ($weekDay == 6) {
+			$output['days'][] = "Saturday";
 		}
-		if ($weekDay == 0)
-		{
-			$output[] = "Sunday";
+		if ($weekDay == 0) {
+			$output['first'][] = "Sunday";
 		}
 	}
 	$i = 0;
-	foreach ($json->days as $item)
-	{
-		if (($i == $weekDay - 1) || ($i == $weekDay))
-		{
-			if (($weekDay == 0) && ($i == 0))
-			{
-				appendDay($output[], $item, true);
+	foreach ($json->days as $item) {
+		if (($i == $weekDay - 1) || ($i == $weekDay)) {
+			if (($weekDay == 0) && ($i == 0)) {
+				appendDay($output['days'], $item, true);
 			}
-			else
-			{
-				appendDay($output[], $item);
+			else {
+				appendDay($output['days'], $item);
 			}
 		}
 		$i++;
 	}
-	if (count($output) < 2)
-	{
-		if ($weekDay == 5)
-		{
-			$output[] = "Saturday";
+	if (count($output) < 2) {
+		if ($weekDay == 5) {
+			$output['days'][] = "Saturday";
 		}
-		if ($weekDay == 6)
-		{
-			$output[] = "Sunday";
+		if ($weekDay == 6) {
+			$output['days'][] = "Sunday";
 		}
 	}
 	$json = $output;
 }
 
 $isLowWeek = date("W") % 2 == 0;
-if ($invertWeekType)
-{
+if ($invertWeekType) {
 	$isLowWeek = !$isLowWeek;
 }
 $json["lowWeek"] = $isLowWeek;

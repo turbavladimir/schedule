@@ -3,7 +3,7 @@
 /*
 *It's a part of PTK NovSU schedule site page
 *@author Vladimir Turba <turbavladimir@yandex.ru>
-*@copyright 2015 Vladimir Turba
+*@copyright 2016 Vladimir Turba
 */
 
 if (file_exists('settings.php')) {
@@ -13,14 +13,10 @@ if (file_exists('settings.php')) {
 }
 require_once "PHPExcel.php";
 
-function getGroupCell($sheet)
-{
-	for ($i = 0; $i < $sheet->getHighestRow(); $i++)
-	{
-		for ($j = 0; $j < PHPExcel_Cell::columnIndexFromString($sheet->getHighestColumn()); $j++)
-		{
-			if ($sheet->getCellByColumnAndRow($j, $i)->getValue() == $_GET['group'])
-			{
+function getGroupCell($sheet) {
+	for ($i = 0; $i < $sheet->getHighestRow(); $i++) {
+		for ($j = 0; $j < PHPExcel_Cell::columnIndexFromString($sheet->getHighestColumn()); $j++) {
+			if ($sheet->getCellByColumnAndRow($j, $i)->getValue() == $_GET['group']) {
 				return [$j, $i];
 			}
 		}
@@ -29,14 +25,11 @@ function getGroupCell($sheet)
 	return [-1];
 }
 
-function isMerged($sheet, $col, $row)
-{
+function isMerged($sheet, $col, $row) {
 	$cell = $sheet->getCellByColumnAndRow($col, $row);
 
-	foreach ($sheet->getMergeCells() as $cells)
-	{
-		if ($cell->isInRange($cells))
-		{
+	foreach ($sheet->getMergeCells() as $cells) {
+		if ($cell->isInRange($cells)) {
 			return [true, $cells];
 		}
 	}
@@ -44,17 +37,14 @@ function isMerged($sheet, $col, $row)
 	return [false];
 }
 
-function getWeekDayRanges($sheet, $startRow)
-{
+function getWeekDayRanges($sheet, $startRow) {
 	$ranges = [];
 
 	$lastWeekDay = $sheet->getCellByColumnAndRow(0, $startRow)->getValue();
 	$lastRow = $startRow;
-	for ($i = $startRow; $i < $sheet->getHighestRow(); $i++)
-	{
+	for ($i = $startRow; $i < $sheet->getHighestRow(); $i++) {
 		$currentValue = getCellValue($sheet, 0, $i);
-		if ($currentValue != $lastWeekDay)
-		{
+		if ($currentValue != $lastWeekDay) {
 			$ranges[] = [$lastRow, $i - 1, $lastWeekDay];
 			$lastWeekDay = $currentValue;
 			$lastRow = $i;
@@ -64,13 +54,10 @@ function getWeekDayRanges($sheet, $startRow)
 	return $ranges;
 }
 
-function getTimeCol($sheet, $startCol, $row)
-{
+function getTimeCol($sheet, $startCol, $row) {
 	global $timePattern;
-	for ($i = $startCol; $i > 0; $i--)
-	{
-		if (preg_match($timePattern, getCellValue($sheet, $i, $row)))
-		{
+	for ($i = $startCol; $i > 0; $i--) {
+		if (preg_match($timePattern, getCellValue($sheet, $i, $row))) {
 			return $i;
 		}
 	}
@@ -78,25 +65,20 @@ function getTimeCol($sheet, $startCol, $row)
 	return -1;
 }
 
-function getCellValue($sheet, $col, $row)
-{
+function getCellValue($sheet, $col, $row) {
 	$check = isMerged($sheet, $col, $row);
-	if ($check[0])
-	{
+	if ($check[0]) {
 		return $sheet->getCell(explode(":", $check[1])[0])->getValue();
 	}
 
 	return $sheet->getCellByColumnAndRow($col, $row)->getCalculatedValue();
 }
 
-function getBorderRowsOfMergedCell($sheet, $col, $row)
-{
+function getBorderRowsOfMergedCell($sheet, $col, $row) {
 	$cell = $sheet->getCellByColumnAndRow($col, $row);
 
-	foreach ($sheet->getMergeCells() as $cells)
-	{
-		if ($cell->isInRange($cells))
-		{
+	foreach ($sheet->getMergeCells() as $cells) {
+		if ($cell->isInRange($cells)) {
 			preg_match("/[A-Z](\d*):[A-Z](\d*)/" , $cells, $match);
 			return [$match[1], $match[2]];
 		}
@@ -105,38 +87,29 @@ function getBorderRowsOfMergedCell($sheet, $col, $row)
 	return [-1];
 }
 
-function replaceEmptinesAliases(&$item, $key)
-{
+function replaceEmptinesAliases(&$item, $key) {
 	global $emptinessAliases;
-	foreach ($emptinessAliases as $alias)
-	{
-		//php ONE LOVE
+	foreach ($emptinessAliases as $alias) {
 		$item = preg_replace($alias, "", $item);
-		if ($item == "")
-		{
+		if ($item == "") {
 			$item = "&nbsp;";
 		}
 	}
 }
 
-function getCallsSchedule($sheet, $timeCol, $range)
-{
+function getCallsSchedule($sheet, $timeCol, $range) {
 	$output = [];
 
-	for ($i = $range[0]; $i <= $range[1]; $i++)
-	{
-		if (getCellValue($sheet, $timeCol, $i) == NULL)
-		{
+	for ($i = $range[0]; $i <= $range[1]; $i++) {
+		if (getCellValue($sheet, $timeCol, $i) == NULL) {
 			continue;
 		}
-		if (isMerged($sheet, $timeCol, $i)[0])
-		{
+		if (isMerged($sheet, $timeCol, $i)[0]) {
 			$output[] = getCellValue($sheet, $timeCol, $i);
 			$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
 			$i += $timeBorders[1] - $timeBorders[0];
 		}
-		else
-		{
+		else {
 			$output[] = getCellValue($sheet, $timeCol, $i);
 		}
 	}
@@ -144,33 +117,25 @@ function getCallsSchedule($sheet, $timeCol, $range)
 	return $output;
 }
 
-function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
-{
+function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range) {
 	$output = [];
 
-	for ($i = $range[0]; $i <= $range[1]; $i++)
-	{
-		if (getCellValue($sheet, $itemCol, $i) == NULL)
-		{
+	for ($i = $range[0]; $i <= $range[1]; $i++) {
+		if (getCellValue($sheet, $itemCol, $i) == NULL) {
 			continue;
 		}
-		if (isMerged($sheet, $timeCol, $i)[0])
-		{
-			if (isMerged($sheet, $itemCol, $i)[0])
-			{
+		if (isMerged($sheet, $timeCol, $i)[0]) {
+			if (isMerged($sheet, $itemCol, $i)[0]) {
 				$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
 				$itemBorders = getBorderRowsOfMergedCell($sheet, $itemCol, $i);
-				if ($timeBorders == $itemBorders)
-				{
+				if ($timeBorders == $itemBorders) {
 					$output[] = getCellValue($sheet, $itemCol, $i);
 					$i += $timeBorders[1] - $timeBorders[0];
 				}
-				else
-				{
+				else {
 					$topItem = getCellValue($sheet, $itemCol, $i);
 					$offset = 1;
-					while (getCellValue($sheet, $itemCol, $i + $offset) == $topItem)
-					{
+					while (getCellValue($sheet, $itemCol, $i + $offset) == $topItem) {
 						$offset++;
 					}
 					$output[] = [
@@ -180,12 +145,10 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 					$i += $offset;
 				}
 			}
-			else
-			{
+			else {
 				$topItem = getCellValue($sheet, $itemCol, $i);
 				$lowWeekOffset = 1;
-				while (getCellValue($sheet, $itemCol, $i + $lowWeekOffset) == $topItem)
-				{
+				while (getCellValue($sheet, $itemCol, $i + $lowWeekOffset) == $topItem) {
 					$lowWeekOffset++;
 				}
 				$output[] = [
@@ -196,8 +159,7 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 				$i += $timeBorders[1] - $timeBorders[0];
 			}
 		}
-		else
-		{
+		else {
 			$output[] = getCellValue($sheet, $itemCol, $i);
 		}
 
@@ -206,5 +168,3 @@ function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range)
 
 	return $output;
 }
-
-?>
