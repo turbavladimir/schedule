@@ -27,41 +27,43 @@
 	<script type="text/javascript">
 		days = ['Сегодня', 'Завтра'];
 
+		function parser(data) {
+			var response = $.parseJSON(data);
+			console.log(response);
+			$('#container').html('<table>');
+			for (var i = 0 ; i < response.days.length; i++) {
+				var content = '<tr><td colspan=2 align="center">' + days[i] + '</td></tr>';
+				if (typeof(response.days[i]) == 'string') {
+					if (response.days[i] == 'Saturday') {
+						day = 'субботу';
+					} else {
+						day = 'воскресенье';
+					}
+					content += '<tr><td colspan=2 align="center">' + 'Ничего на ' + day + '</td></tr>';
+				} else {
+					for (var j = 0; j < response.days[i].schedule.length; j++) {
+						time = response.days[i].time[j].split('-');
+						content += '<tr><td><p class="time">' + time[0] + '</p><p class="time">' +
+							time[1] + '</p></td><td>' + response.days[i].schedule[j] + '</td></tr>';
+					}
+				}
+				$('#container').append(content);
+			}
+			$('#container').append('</table>');
+		}
+
 		function loadSchedule(group) {
 			$.ajax({
-				url: 'php/short.php',
-				data: 'group=' + group,
-				success: function(data) {
-					var response = $.parseJSON(data);
-					$('#container').html('<table>');
-					for (var i = 0 ; i < response.length; i++) {
-						var content = '<tr><td colspan=2 align="center">' + days[i] + '</td></tr>';
-						if (typeof(response[i]) == 'string') {
-							if (response[i] == 'Saturday') {
-								day = 'субботу';
-							} else {
-								day = 'воскресенье';
-							}
-							content += '<tr><td colspan=2 align="center">' + 'Ничего на ' + day + '</td></tr>';
-						} else {
-							for (var j = 0; j < response[i].schedule.length; j++) {
-								time = response[i].time[j].split('-');
-								content += '<tr><td><p class="time">' + time[0] + '</p><p class="time">' +
-											time[1] + '</p></td><td>' + response[i].schedule[j] + '</td></tr>';
-							}
-						}
-						$('#container').append(content);
-					}
-					$('#container').append('</table>');
-				}
+				url: 'php/index.php',
+				data: {'group': group, 'short': ''},
+				success: parser
 			});
 		}
 
 		$.ajax({
-			url: 'groupList',
-			dataType: 'text',
-			success: function(data){
-				var groups = data.match(/[^\r\n]+/g);
+			url: 'php/groups.php',
+			success: function(data) {
+				var groups = $.parseJSON(data);
 				var defaultGroup = $.cookie('group');
 				if ($.inArray(defaultGroup, groups) < 0) {
 					defaultGroup = groups[0];
