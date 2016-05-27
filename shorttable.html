@@ -25,59 +25,59 @@
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.cookie.js"></script>
 	<script type="text/javascript">
-		days = ["Сегодня", "Завтра"];
+		days = ['Сегодня', 'Завтра'];
 
 		function loadSchedule(group) {
 			$.ajax({
-				url: "php/short.php",
-				data: "group=" + group,
+				url: 'php/short.php',
+				data: 'group=' + group,
 				success: function(data) {
 					var response = $.parseJSON(data);
-					$("#container").html("<table>");
+					$('#container').html('<table>');
 					for (var i = 0 ; i < response.length; i++) {
-						var content = "<tr><td colspan=2 align=\"center\">" + days[i] + "</td></tr>";
-						if (typeof(response[i]) == "string") {
-							if (response[i] == "Saturday") {
-								day = "субботу";
+						var content = '<tr><td colspan=2 align="center">' + days[i] + '</td></tr>';
+						if (typeof(response[i]) == 'string') {
+							if (response[i] == 'Saturday') {
+								day = 'субботу';
 							} else {
-								day = "воскресенье";
+								day = 'воскресенье';
 							}
-							content += "<tr><td colspan=2 align=\"center\">" + "Ничего на " + day + "</td></tr>";
+							content += '<tr><td colspan=2 align="center">' + 'Ничего на ' + day + '</td></tr>';
 						} else {
 							for (var j = 0; j < response[i].schedule.length; j++) {
-								time = response[i].time[j].split("-");
-								content += "<tr><td><p class=\"time\">" + time[0] + "</p><p class=\"time\">" +
-											time[1] + "</p></td><td>" + response[i].schedule[j] + "</td></tr>";
+								time = response[i].time[j].split('-');
+								content += '<tr><td><p class="time">' + time[0] + '</p><p class="time">' +
+											time[1] + '</p></td><td>' + response[i].schedule[j] + '</td></tr>';
 							}
 						}
-						$("#container").append(content);
+						$('#container').append(content);
 					}
-					$("#container").append("</table>");
+					$('#container').append('</table>');
 				}
 			});
 		}
 
 		$.ajax({
-			url: "groupList",
-			dataType: "text",
+			url: 'groupList',
+			dataType: 'text',
 			success: function(data){
 				var groups = data.match(/[^\r\n]+/g);
-				var defaultGroup = $.cookie("group");
+				var defaultGroup = $.cookie('group');
 				if ($.inArray(defaultGroup, groups) < 0) {
 					defaultGroup = groups[0];
-					$.cookie("group", defaultGroup, {expires: 365});
+					$.cookie('group', defaultGroup, {expires: 365});
 				}
 				for (var i = 0; i < groups.length; i++) {
-					$("#groups").append("<option value=\"" + groups[i] + "\">" + groups[i] + "</option>");
+					$('#groups').append('<option value="' + groups[i] + '">' + groups[i] + '</option>');
 				}
-				$("#groups").val(defaultGroup);
+				$('#groups').val(defaultGroup);
 				loadSchedule(defaultGroup);
 			}
 		});
 
-		$("#groups").change(function() {
+		$('#groups').change(function() {
 			loadSchedule($(this).val());
-			$.cookie("group", $(this).val(), {expires: 365});
+			$.cookie('group', $(this).val(), {expires: 365});
 		});
 	</script>
 	<script type="text/javascript">
