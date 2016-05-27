@@ -6,7 +6,11 @@
 *@copyright 2015 Vladimir Turba
 */
 
-require_once "settings.php";
+if (file_exists('settings.php')) {
+	require_once "settings.php";
+} else {
+	require_once 'settings-default.php';
+}
 require_once "parser.php";
 require_once "PHPExcel.php";
 require_once "PHPExcel/IOFactory.php";

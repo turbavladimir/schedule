@@ -6,28 +6,39 @@
 *@copyright 2015 Vladimir Turba
 */
 
-require_once "settings.php";
+if (file_exists('settings.php')) {
+	require_once "settings.php";
+} else {
+	require_once 'settings-default.php';
+}
 require_once "functions.php";
 
 //check arguments
 if (empty($_GET['group']))
 {
-	echo "Error: no group specified";
-	exit;
+	die(json_encode(['error' => 'no group specified']));
 }
-if (strpos($_GET['group'], 'УП') === false) {
+
+$customGroups = [];
+if (file_exists("../custom")) {
+	$customGroups = scandir('../custom');
+	$customGroups = array_slice($customGroups, 2);
+}
+if (in_array($_GET['group'], $customGroups)) {
+	$json =  json_decode(file_get_contents("../custom/" . $_GET['group']), true);
+}
+else
+{
 	$page = file_get_contents($url . $timeTable);
 	preg_match($groupPattern, $_GET['group'], $groupMatch);
 	//get match with relative xls file url and last update time
 	if (!preg_match("/<a href=\"(.*)\" title=\"(.*)\">" . $groupMatch[0] . "<\/a>/", $page, $match))
 	{
-		error_log("failed to parse schedule version in timetable");
-		exit;
+		die(json_encode(['error' => 'failed to parse schedule version in timetable']));
 	}
 	if (!preg_match("/ptk\/(.*)\?/", $match[1], $filenameMatch))
 	{
-		error_log("failed to parse xls filename");
-		exit;
+		die(json_encode(['error' => 'failed to parse xls filename']));
 	}
 	$filename = $filenameMatch[1];
 
@@ -59,17 +70,58 @@ if (strpos($_GET['group'], 'УП') === false) {
 		updateCache($filename);
 		storeTimestamp($match[2]);
 	}
+	$json =  json_decode(file_get_contents($tmpDir . "/json/" . $_GET['group']), true);
 }
-//load cache and send to user
-$cache =  json_decode(file_get_contents($tmpDir . "/json/" . $_GET['group']), true);
+
+if (isset($_GET['short'])) {
+	$weekDay = date("w");
+	$output = [];
+	if (count($json->days) < 6)
+	{
+		if ($weekDay == 6)
+		{
+			$output[] = "Saturday";
+		}
+		if ($weekDay == 0)
+		{
+			$output[] = "Sunday";
+		}
+	}
+	$i = 0;
+	foreach ($json->days as $item)
+	{
+		if (($i == $weekDay - 1) || ($i == $weekDay))
+		{
+			if (($weekDay == 0) && ($i == 0))
+			{
+				appendDay($output[], $item, true);
+			}
+			else
+			{
+				appendDay($output[], $item);
+			}
+		}
+		$i++;
+	}
+	if (count($output) < 2)
+	{
+		if ($weekDay == 5)
+		{
+			$output[] = "Saturday";
+		}
+		if ($weekDay == 6)
+		{
+			$output[] = "Sunday";
+		}
+	}
+	$json = $output;
+}
 
 $isLowWeek = date("W") % 2 == 0;
 if ($invertWeekType)
 {
 	$isLowWeek = !$isLowWeek;
 }
-$cache["lowWeek"] = $isLowWeek;
+$json["lowWeek"] = $isLowWeek;
 
-echo json_encode($cache, $jsonFlags);
-
-?>
+echo json_encode($json, $jsonFlags);
