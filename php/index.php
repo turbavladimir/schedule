@@ -68,22 +68,24 @@ else {
 if (isset($_GET['short'])) {
 	$weekDay = date("w");
 	$output = [];
-	if (count($json->days) < 6) {
+	if (count($json['days']) < 6) {
 		if ($weekDay == 6) {
 			$output['days'][] = "Saturday";
 		}
 		if ($weekDay == 0) {
-			$output['first'][] = "Sunday";
+			$output['days'][] = "Sunday";
 		}
 	}
 	$i = 0;
-	foreach ($json->days as $item) {
+	foreach ($json['days'] as $item) {
 		if (($i == $weekDay - 1) || ($i == $weekDay)) {
+			$output['days'][] = [];
+			$lastIndex = count($output['days']) - 1;
 			if (($weekDay == 0) && ($i == 0)) {
-				appendDay($output['days'], $item, true);
+				appendDay($output['days'][$lastIndex], $item, true);
 			}
 			else {
-				appendDay($output['days'], $item);
+				appendDay($output['days'][$lastIndex], $item);
 			}
 		}
 		$i++;

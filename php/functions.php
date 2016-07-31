@@ -122,20 +122,20 @@ function appendDay(&$list, $day, $nextWeek = false) {
 	if ($nextWeek) {
 		$isLowWeek = !$isLowWeek;
 	}
-	foreach ($day->schedule as $item) {
+	foreach ($day["schedule"] as $item) {
 		if (gettype($item) == "object") {
 			if ($isLowWeek) {
-				$list["schedule"][] = $item->bottom;
+				$list["schedule"][] = $item["bottom"];
 			}
 			else {
-				$list["schedule"][] = $item->top;
+				$list["schedule"][] = $item["top"];
 			}
 		}
 		else {
 			$list["schedule"][] = $item;
 		}
 	}
-	$list["time"] = $day->time;
+	$list["time"] = $day["time"];
 
 	while ($list["schedule"][count($list["schedule"]) - 1] == "&nbsp;") {
 		array_pop($list["schedule"]);
