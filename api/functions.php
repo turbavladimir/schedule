@@ -123,7 +123,7 @@ function appendDay(&$list, $day, $nextWeek = false) {
 		$isLowWeek = !$isLowWeek;
 	}
 	foreach ($day["schedule"] as $item) {
-		if (gettype($item) == "object") {
+		if (gettype($item) == "array") {
 			if ($isLowWeek) {
 				$list["schedule"][] = $item["bottom"];
 			}
