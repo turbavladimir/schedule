@@ -12,21 +12,16 @@ if (file_exists('settings.php')) {
 	require_once 'settings-default.php';
 }
 
-$groups = [
-	'5901',
-	'5902',
-	'5911 а',
-	'5911 б',
-	'5911 в',
-	'4911 а',
-	'4911 б',
-	'4911 в',
-	'5921',
-	'5931',
-	'4941',
-	'5951',
-	'5961'
-];
+$page = file_get_contents($url . $timeTable);
+$dom = new DOMDocument();
+$dom->loadHTML($page);
+$xpath = new DOMXPath($dom);
+$div = $xpath->query('//div[h1[contains(text(),"Политехнический колледж")]]')[0];
+$nodes = $xpath->query('.//a[contains(@href,".xls")]', $div);
+$groups = [];
+foreach ($nodes as $node) {
+	$groups[] = $node->nodeValue;
+}
 
 if (file_exists("../custom")) {
 	$customGroups = scandir('../custom');
