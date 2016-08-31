@@ -14,7 +14,7 @@ if (file_exists('settings.php')) {
 
 $page = file_get_contents($url . $timeTable);
 $dom = new DOMDocument();
-$dom->loadHTML($page);
+@$dom->loadHTML($page);
 $xpath = new DOMXPath($dom);
 $div = $xpath->query('//div[h1[contains(text(),"Политехнический колледж")]]')[0];
 $nodes = $xpath->query('.//a[contains(@href,".xls")]', $div);

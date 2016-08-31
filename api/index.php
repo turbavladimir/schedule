@@ -25,8 +25,7 @@ if (file_exists("../custom")) {
 }
 if (in_array($_GET['group'], $customGroups)) {
 	$json =  json_decode(file_get_contents("../custom/" . $_GET['group']), true);
-}
-else {
+} else {
 	$page = file_get_contents($url . $timeTable);
 	preg_match($groupPattern, $_GET['group'], $groupMatch);
 	//get match with relative xls file url and last update time
