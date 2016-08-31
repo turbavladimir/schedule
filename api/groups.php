@@ -16,7 +16,7 @@ $page = file_get_contents($url . $timeTable);
 $dom = new DOMDocument();
 @$dom->loadHTML($page);
 $xpath = new DOMXPath($dom);
-$div = $xpath->query('//div[h1[contains(text(),"Политехнический колледж")]]')[0];
+$div = $xpath->query('//div[h1[contains(text(),"Политехнический колледж")]]')->item(0);
 $nodes = $xpath->query('.//a[contains(@href,".xls")]', $div);
 $groups = [];
 foreach ($nodes as $node) {
