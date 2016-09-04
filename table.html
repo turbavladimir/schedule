@@ -57,7 +57,7 @@
 				}
 			}
 			return size;
-		};
+		}
 
 		function parser(data) {
 			var response = $.parseJSON(data);
@@ -69,6 +69,9 @@
 
 			$('#container').html('<table>');
 			for (var i = 0 ; i < response.days.length; i++) {
+				if (!response.days[i].schedule.length) {
+					continue;
+				}
 				var content = '<tr><th rowspan=' + sizeOf(response.days[i].schedule) +
 							  '><p class="rotate">' + days[i] + '</p></th>';
 				time = response.days[i].time[0].split('-');

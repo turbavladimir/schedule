@@ -7,12 +7,12 @@
 */
 
 if (file_exists('subgroups.php')) {
-	require_once "subgroups.php";
+	require_once 'subgroups.php';
 } else {
 	require_once 'subgroups-default.php';
 }
 if (file_exists('settings.php')) {
-	require_once "settings.php";
+	require_once 'settings.php';
 } else {
 	require_once 'settings-default.php';
 }
@@ -28,7 +28,7 @@ foreach ($nodes as $node) {
 	$groups[] = $node->nodeValue;
 }
 
-if (file_exists("../custom")) {
+if (file_exists('../custom')) {
 	$customGroups = scandir('../custom');
 	$groups = array_merge($groups, array_slice($customGroups, 2));
 }

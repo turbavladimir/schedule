@@ -29,7 +29,6 @@
 
 		function parser(data) {
 			var response = $.parseJSON(data);
-			console.log(response);
 			$('#container').html('<table>');
 			for (var i = 0 ; i < response.days.length; i++) {
 				var content = '<tr><td colspan=2 align="center">' + days[i] + '</td></tr>';
@@ -54,14 +53,14 @@
 
 		function loadSchedule(group) {
 			$.ajax({
-				url: 'api/index.php',
+				url: 'api/index.php' + location.search,
 				data: {'group': group, 'short': ''},
 				success: parser
 			});
 		}
 
 		$.ajax({
-			url: 'api/groups.php',
+			url: 'api/groups.php' + location.search,
 			success: function(data) {
 				var groups = $.parseJSON(data);
 				var defaultGroup = $.cookie('group');

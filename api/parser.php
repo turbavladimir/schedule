@@ -7,22 +7,26 @@
 */
 
 if (file_exists('settings.php')) {
-	require_once "settings.php";
+	require_once 'settings.php';
 } else {
 	require_once 'settings-default.php';
 }
-require_once "PHPExcel.php";
+require_once 'PHPExcel.php';
 
 function getGroupCell($sheet) {
+	$values = [
+		$_GET['group'],
+		str_replace(' ', '', $_GET['group'])
+	];
 	for ($i = 0; $i < $sheet->getHighestRow(); $i++) {
 		for ($j = 0; $j < PHPExcel_Cell::columnIndexFromString($sheet->getHighestColumn()); $j++) {
-			if ($sheet->getCellByColumnAndRow($j, $i)->getValue() == $_GET['group']) {
+			if (in_array($sheet->getCellByColumnAndRow($j, $i)->getValue(), $values)) {
 				return [$j, $i];
 			}
 		}
 	}
 
-	return [-1];
+	return false;
 }
 
 function isMerged($sheet, $col, $row) {
@@ -30,21 +34,24 @@ function isMerged($sheet, $col, $row) {
 
 	foreach ($sheet->getMergeCells() as $cells) {
 		if ($cell->isInRange($cells)) {
-			return [true, $cells];
+			return $cells;
 		}
 	}
 
-	return [false];
+	return false;
 }
 
 function getWeekDayRanges($sheet, $startRow) {
-	$ranges = [];
-
 	$lastWeekDay = $sheet->getCellByColumnAndRow(0, $startRow)->getValue();
 	$lastRow = $startRow;
 	for ($i = $startRow; $i < $sheet->getHighestRow(); $i++) {
 		$currentValue = getCellValue($sheet, 0, $i);
 		if ($currentValue != $lastWeekDay) {
+			if ($i - $lastRow - 1 <= 0) {
+				$lastWeekDay = $currentValue;
+				$lastRow = $i;
+				continue;
+			}
 			$ranges[] = [$lastRow, $i - 1, $lastWeekDay];
 			$lastWeekDay = $currentValue;
 			$lastRow = $i;
@@ -67,8 +74,8 @@ function getTimeCol($sheet, $startCol, $row) {
 
 function getCellValue($sheet, $col, $row) {
 	$check = isMerged($sheet, $col, $row);
-	if ($check[0]) {
-		return $sheet->getCell(explode(":", $check[1])[0])->getValue();
+	if ($check !== false) {
+		return $sheet->getCell(explode(':', $check)[0])->getValue();
 	}
 
 	return $sheet->getCellByColumnAndRow($col, $row)->getCalculatedValue();
@@ -90,26 +97,24 @@ function getBorderRowsOfMergedCell($sheet, $col, $row) {
 function replaceEmptinesAliases(&$item, $key) {
 	global $emptinessAliases;
 	foreach ($emptinessAliases as $alias) {
-		$item = preg_replace($alias, "", $item);
-		if ($item == "") {
-			$item = "&nbsp;";
+		$item = preg_replace($alias, '', $item);
+		if ($item == '') {
+			$item = '&nbsp;';
 		}
 	}
 }
 
-function getCallsSchedule($sheet, $timeCol, $range) {
+function getCallsSchedule($sheet, $timeCol, $groupCol, $range) {
 	$output = [];
-
 	for ($i = $range[0]; $i <= $range[1]; $i++) {
 		if (getCellValue($sheet, $timeCol, $i) == NULL) {
 			continue;
 		}
-		if (isMerged($sheet, $timeCol, $i)[0]) {
+		if (isMerged($sheet, $timeCol, $i) !== false) {
 			$output[] = getCellValue($sheet, $timeCol, $i);
 			$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
 			$i += $timeBorders[1] - $timeBorders[0];
-		}
-		else {
+		} else {
 			$output[] = getCellValue($sheet, $timeCol, $i);
 		}
 	}
@@ -119,51 +124,52 @@ function getCallsSchedule($sheet, $timeCol, $range) {
 
 function getScheduleOfRowRange($sheet, $timeCol, $itemCol, $range) {
 	$output = [];
-
 	for ($i = $range[0]; $i <= $range[1]; $i++) {
-		if (getCellValue($sheet, $itemCol, $i) == NULL) {
-			continue;
-		}
-		if (isMerged($sheet, $timeCol, $i)[0]) {
-			if (isMerged($sheet, $itemCol, $i)[0]) {
-				$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
-				$itemBorders = getBorderRowsOfMergedCell($sheet, $itemCol, $i);
-				if ($timeBorders == $itemBorders) {
-					$output[] = getCellValue($sheet, $itemCol, $i);
+		$topItem = getCellValue($sheet, $itemCol, $i);
+		if (isMerged($sheet, $timeCol, $i) !== false) {
+			$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
+			$itemBorders = getBorderRowsOfMergedCell($sheet, $itemCol, $i);
+			if (isMerged($sheet, $itemCol, $i) !== false) {
+				if ($topItem == NULL) {
+					$output[] = $topItem;
 					$i += $timeBorders[1] - $timeBorders[0];
+					continue;
 				}
-				else {
-					$topItem = getCellValue($sheet, $itemCol, $i);
+				if ($timeBorders == $itemBorders) {
+					$output[] = $topItem;
+					$i += $timeBorders[1] - $timeBorders[0];
+				} else {
 					$offset = 1;
 					while (getCellValue($sheet, $itemCol, $i + $offset) == $topItem) {
 						$offset++;
 					}
 					$output[] = [
-						"top" => $topItem,
-						"bottom" => getCellValue($sheet, $itemCol, $i + $offset)
+						'top' => $topItem,
+						'bottom' => getCellValue($sheet, $itemCol, $i + $offset)
 					];
 					$i += $offset;
 				}
-			}
-			else {
-				$topItem = getCellValue($sheet, $itemCol, $i);
+			} else {
 				$lowWeekOffset = 1;
+				if ($topItem == NULL) {
+					$output[] = $topItem;
+					$i += $lowWeekOffset;
+					continue;
+				}
 				while (getCellValue($sheet, $itemCol, $i + $lowWeekOffset) == $topItem) {
 					$lowWeekOffset++;
 				}
 				$output[] = [
-					"top" => $topItem,
-					"bottom" => getCellValue($sheet, $itemCol, $i + $lowWeekOffset)
+					'top' => $topItem,
+					'bottom' => getCellValue($sheet, $itemCol, $i + $lowWeekOffset)
 				];
-				$timeBorders = getBorderRowsOfMergedCell($sheet, $timeCol, $i);
 				$i += $timeBorders[1] - $timeBorders[0];
 			}
-		}
-		else {
-			$output[] = getCellValue($sheet, $itemCol, $i);
+		} else {
+			$output[] = $topItem;
 		}
 
-		array_walk_recursive($output, "replaceEmptinesAliases");
+		array_walk_recursive($output, 'replaceEmptinesAliases');
 	}
 
 	return $output;

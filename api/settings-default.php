@@ -9,8 +9,8 @@
 $tmpDir = "/tmp/schedule";
 $url = "http://novsu.ru";
 $timeTable = "/univer/timetable/spo";
-$emptinessAliases = ["/\_*/", "/\-*/"];
+$emptinessAliases = ["/^\_+$/", "/^\-+$/"];
 $jsonFlags = JSON_UNESCAPED_UNICODE;
-$groupPattern = "/\d*/";
-$timePattern = "/\d*.\d*-\d*.\d*/";
+$groupPattern = "/\d+/";
+$timePattern = "/\d+\.\d+\-\d+\.\d+/";
 $invertWeekType = True;
