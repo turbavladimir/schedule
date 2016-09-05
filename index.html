@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Расписание ПТК НовГУ</title>
+	<link rel="stylesheet" href="css/semantic.css">
+	<link rel="stylesheet" href="css/dropdown.min.css">
+	<link rel="stylesheet" href="css/loader.min.css">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="ui text container">
+	<div class="ui disabled inverted dimmer">
+		<div class="ui text loader">Загрузка</div>
+	</div>
+	<div class="ui grid">
+		<div class="sixteen wide column">
+			<div class="ui buttons fluid large">
+				<button class="ui button active">Сокращенное</button>
+				<button class="ui button">Полное</button>
+			</div>
+		</div>
+		<div class="eight wide column">
+			<select class="ui dropdown fluid"></select>
+		</div>
+		<div class="eight wide column">
+			<select id="groups" class="ui dropdown fluid"></select>
+		</div>
+		<div class="sixteen wide column">
+			<div class="ui segment no-shadow">
+				<p class="week">Текущая неделя: <span id="weekType"></span></p>
+			</div>
+		</div>
+		<div class="sixteen wide column">
+			<table id="container" class="ui celled table unstackable"></table>
+		</div>
+	</div>
+</div>
+<script src="js/jquery-2.2.4.min.js"></script>
+<script src="js/jquery.cookie.min.js"></script>
+<script src="js/semantic.js"></script>
+<script src="js/dropdown.min.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
