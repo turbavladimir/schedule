@@ -118,14 +118,13 @@ function loadGroups(course) {
 			for (var i = 0; i < groups.length; i++) {
 				groupsSelect.append('<option value="' + groups[i] + '">' + groups[i] + '</option>');
 			}
-			groupsSelect.val(defaultGroup);
-			$('.dropdown.groups').dropdown('set text', defaultGroup);
+			$('.dropdown.groups').dropdown();
+			$('.dropdown.groups').dropdown('set selected', defaultGroup);
 			loadSchedule(defaultGroup);
 		}
 	});
 }
 
-$('.dropdown').dropdown();
 $('#groups').change(function() {
 	loadSchedule($(this).val());
 	$.cookie('group', $(this).val(), {expires: 365});
@@ -147,11 +146,10 @@ if (!defaultType) {
 }
 $('#type .button[data-target=' + defaultType + ']').addClass('active');
 
+$('.dropdown.courses').dropdown();
 defaultCourse = $.cookie('course');
 if (!defaultCourse) {
 	defaultCourse = 1;
 }
-courses.val(defaultCourse);
-text = courses.children('option:selected').text();
-$('.dropdown.courses').dropdown('set text', text);
+$('.dropdown.courses').dropdown('set selected', defaultCourse);
 loadGroups(defaultCourse);
