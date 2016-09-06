@@ -118,17 +118,27 @@ function loadGroups(course) {
 			for (var i = 0; i < groups.length; i++) {
 				groupsSelect.append('<option value="' + groups[i] + '">' + groups[i] + '</option>');
 			}
-			$('.dropdown.groups').dropdown();
-			$('.dropdown.groups').dropdown('set selected', defaultGroup);
+			$('.dropdown.groups').dropdown('refresh');
+			setTimeout(function () {
+				$('.dropdown.groups').dropdown('set selected', defaultGroup);
+			}, 1);
 			loadSchedule(defaultGroup);
 		}
 	});
 }
 
+
 $('#groups').change(function() {
 	loadSchedule($(this).val());
 	$.cookie('group', $(this).val(), {expires: 365});
 });
+$('.dropdown').dropdown();
+defaultCourse = $.cookie('course');
+if (!defaultCourse) {
+	defaultCourse = 1;
+}
+$('.dropdown.courses').dropdown('set selected', defaultCourse);
+
 courses = $('#courses');
 courses.change(function () {
 	loadGroups($(this).val());
@@ -146,10 +156,4 @@ if (!defaultType) {
 }
 $('#type .button[data-target=' + defaultType + ']').addClass('active');
 
-$('.dropdown.courses').dropdown();
-defaultCourse = $.cookie('course');
-if (!defaultCourse) {
-	defaultCourse = 1;
-}
-$('.dropdown.courses').dropdown('set selected', defaultCourse);
 loadGroups(defaultCourse);
