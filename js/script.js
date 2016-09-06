@@ -95,7 +95,7 @@ function loadSchedule(group) {
 		data = {'group': group};
 	}
 	$.ajax({
-		url: '/api/index.php',
+		url: 'api/index.php',
 		data: data,
 		success: (type == 'short') ? parserShort : parserFull
 	});
@@ -104,7 +104,7 @@ function loadSchedule(group) {
 function loadGroups(course) {
 	setLoader(true);
 	$.ajax({
-		url: '/api/groups.php',
+		url: 'api/groups.php',
 		data: 'course=' + course,
 		success: function(data) {
 			var groups = $.parseJSON(data);
