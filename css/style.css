@@ -9,6 +9,7 @@ td.mergedTop {
 }
 td.mergedBottom {
 	border-top: none !important;
+	border-left: 1px solid rgba(34, 36, 38, 0.1) !important;
 	padding-top: 5px !important;
 	padding-bottom: 5px !important;
 }
@@ -42,9 +43,6 @@ thead {
 }
 .segment.no-shadow {
 	box-shadow: none !important;
-}
-.ui.celled.table tr th, .ui.celled.table tr td {
-	border-left: 1px solid rgba(34, 36, 38, 0.1) !important;
 }
 .ui.dimmer {
 	position: fixed !important;
