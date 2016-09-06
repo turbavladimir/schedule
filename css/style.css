@@ -1,11 +1,4 @@
-*{
-	margin: 0;
-	padding: 0;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-}
-.simpleCell{
+td {
 	padding-top: 2px !important;
 	padding-bottom: 2px !important;
 }
@@ -19,31 +12,13 @@ td.mergedBottom {
 	padding-top: 5px !important;
 	padding-bottom: 5px !important;
 }
-th {
-	font-family: "Times New Roman", Times, sans-serif;
-	padding: 5px;
-	max-width: 2em;
-	vertical-align: bottom;
+td.time {
+	padding: 5px 15px !important;
+	width: 1px;
 }
-.time {
-	margin: 0 auto;
+p.time {
+	margin: 0;
 	text-align: center;
-}
-.rotate {
-	-moz-transform: rotate(-90.0deg);
-	-o-transform: rotate(-90.0deg);
-	-webkit-transform: rotate(-90.0deg);
-	transform: rotate(-90.0deg);
-	margin-bottom: 0;
-	color: rgba(0, 0, 0, 0.6);
-	font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-	text-transform: none;
-	text-shadow: none;
-	font-weight: bold;
-	font-style: normal;
-	text-align: center;
-	text-decoration: none;
-	padding-left: 5px;
 }
 .container{
 	margin: 20px auto !important;
@@ -51,8 +26,8 @@ th {
 .controls{
 	margin: 10px;
 }
-.segment p.week{
-	color: rgba(0, 0, 0, 0.6);
+.segment p.week, thead th{
+	color: rgba(0, 0, 0, 0.6) !important;
 	font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
 	text-transform: none;
 	text-shadow: none;
@@ -62,21 +37,18 @@ th {
 	text-align: center;
 	text-decoration: none;
 }
+thead {
+	text-align: center;
+}
 .segment.no-shadow {
 	box-shadow: none !important;
 }
 .ui.celled.table tr th, .ui.celled.table tr td {
 	border-left: 1px solid rgba(34, 36, 38, 0.1) !important;
 }
-.ui.celled.table tr th:first-child{
-	border-top: 1px solid rgba(34, 36, 38, 0.1) !important;
-}
-.ui.celled.table tr th:first-child{
-	border-left: none !important;
-}
-.ui.celled.table tr:first-child th{
-	border-top: none !important;
-}
 .ui.dimmer {
 	position: fixed !important;
+}
+.column {
+	padding-bottom: 0 !important;
 }
