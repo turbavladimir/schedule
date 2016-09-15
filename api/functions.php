@@ -33,8 +33,15 @@ function getCacheTimestamp() {
 
 function isDayEmty($day) {
 	for ($i = 0; $i < count($day['schedule']) - 1; $i++) {
-		if (!in_array($day['schedule'][$i], [NULL, '', '&nbsp;'])) {
-			return false;
+		if (gettype($day['schedule'][$i]) == 'string') {
+			if (!in_array($day['schedule'][$i], [NULL, '', '&nbsp;'])) {
+				return false;
+			}
+		} else {
+			if (!in_array($day['schedule'][$i]['top'], [NULL, '', '&nbsp;']) ||
+				!in_array($day['schedule'][$i]['bottom'], [NULL, '', '&nbsp;'])) {
+				return false;
+			}
 		}
 	}
 	return true;
