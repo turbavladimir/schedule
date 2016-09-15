@@ -21,13 +21,13 @@ p.time {
 	margin: 0;
 	text-align: center;
 }
-.container{
+.container {
 	margin: 20px auto !important;
 }
-.controls{
+.controls {
 	margin: 10px;
 }
-.segment p.week, thead th{
+.segment p.week, thead th {
 	color: rgba(0, 0, 0, 0.6) !important;
 	font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
 	text-transform: none;
@@ -49,4 +49,18 @@ thead {
 }
 .column {
 	padding-bottom: 0 !important;
+}
+button.bugreport {
+	position: fixed;
+	right: 10px;
+	bottom: 10px;
+}
+.popup.bugreport {
+	position: fixed !important;
+}
+.popup.bugreport .content.success {
+	color: green;
+}
+.popup.bugreport .content.fail {
+	color: red;
 }

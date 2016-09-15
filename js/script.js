@@ -127,7 +127,6 @@ function loadGroups(course) {
 	});
 }
 
-
 $('#groups').change(function() {
 	loadSchedule($(this).val());
 	$.cookie('group', $(this).val(), {expires: 365});
@@ -157,3 +156,46 @@ if (!defaultType) {
 $('#type .button[data-target=' + defaultType + ']').addClass('active');
 
 loadGroups(defaultCourse);
+
+$('button.bugreport').popup({
+	inline: true,
+	on: 'click',
+	position: 'top right',
+	closable: false,
+	onHide: function () {
+		$('*').css('cursor', '');
+	},
+	onVisible: function () {
+		$('.popup.bugreport button.show').one('click',function () {
+			$('*').css('cursor', 'pointer');
+			setTimeout(function () {
+				$('body').one('click', function (event) {
+					$('*').css('cursor', '');
+					console.log(event);
+					$.post('api/bugreport.php', {
+						'x': event.pageX,
+						'y': event.pageY,
+						'target': event.target.outerHTML,
+						'group': $.cookie('group'),
+						'type': $.cookie('type')
+					}).always(function (data) {
+						try {
+							var success = true;
+							data = JSON.parse(data);
+						} catch (e) {
+							success = false;
+						} finally {
+							if (success) {
+								$('button.bugreport i').removeClass('bug').addClass('send');
+								$('.popup.bugreport').html('<div class="success content"><div class="header">Сообщение об ошибке отправлено!</div></div>');
+							} else {
+								$('button.bugreport i').removeClass('bug').addClass('remove');
+								$('.popup.bugreport').html('<div class="fail content"><div class="header">Отправка сообщения об ошибке не удалась.</div></div>');
+							}
+						}
+					});
+				})
+			}, 1);
+		});
+	}
+});
