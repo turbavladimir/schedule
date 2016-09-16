@@ -54,13 +54,22 @@ button.bugreport {
 	position: fixed !important;
 	right: 10px !important;
 	bottom: 10px !important;
+	z-index: 9999;
 }
 .popup.bugreport {
 	position: fixed !important;
+	z-index: 9999;
 }
 .popup.bugreport .content.success .header {
 	color: #1A531B !important;
 }
 .popup.bugreport .content.fail .header {
 	color: #794B02 !important;
+}
+.table.bugreport {
+	position: relative;
+	z-index: 9999;
+}
+.ui.table:last-child {
+	margin-bottom: 20px;
 }

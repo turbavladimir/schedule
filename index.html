@@ -14,6 +14,7 @@
 </head>
 <body>
 <div class="ui text container">
+	<div class="bugreport ui page dimmer"></div>
 	<div id="loader" class="ui active inverted dimmer">
 		<div class="ui text loader">Загрузка</div>
 	</div>
@@ -43,17 +44,18 @@
 		<div id="container" class="sixteen wide column"></div>
 	</div>
 </div>
-<button class="bugreport circular ui icon button">
-	<i class="icon bug"></i>
+<button class="bugreport circular ui large icon button">
+	<i class="icon large warning sign"></i>
 </button>
 <div class="bugreport ui card popup transition">
 	<div class="content">
 		<div class="header">Сообщить об ошибке</div>
-		<div class="description">Укажите место на странице</div>
+		<div class="description">Укажите пару в расписании</div>
 	</div>
 	<div class="extra content">
-		<button class="show ui button fluid">
-			<i class="hand pointer icon"></i> Показать
+		<button class="toggle ui button fluid">
+			<i class="hand pointer icon"></i>
+			<span>Показать</span>
 		</button>
 	</div>
 </div>
@@ -63,6 +65,7 @@
 <script src="js/dropdown.min.js"></script>
 <script src="js/popup.min.js"></script>
 <script src="js/script.js"></script>
+<script src="js/bugreport.js"></script>
 <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter36039930 = new Ya.Metrika({ id:36039930, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/36039930" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 </body>
 </html>
