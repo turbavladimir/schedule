@@ -28,7 +28,7 @@ $('button.bugreport').click(function () {
 	if ($('button.bugreport').popup('is hidden')) {
 		setReportMode(true);
 		$('table').click(function (event) {
-			$('button.bugreport').addClass('loading');
+			$('button.bugreport').addClass('active loading');
 			$('.popup.bugreport').html('<div class="content"><div class="header">Отправка сообщения об ошибке..</div></div>');
 			$.post('api/bugreport.php', {
 				'x': event.pageX,
@@ -56,7 +56,7 @@ $('button.bugreport').click(function () {
 				} catch (e) {
 					success = false;
 				} finally {
-					$('button.bugreport').removeClass('loading');
+					$('button.bugreport').removeClass('active loading');
 					if (success) {
 						$('button.bugreport i').removeClass('warning circle').addClass('send');
 						$('.popup.bugreport').html('<div class="success content"><div class="header">Сообщение об ошибке отправлено!</div></div>');
