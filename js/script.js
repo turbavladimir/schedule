@@ -170,13 +170,17 @@ $('button.bugreport').popup({
 		$('.popup.bugreport button.show').one('click',function () {
 			$('*').css('cursor', 'pointer');
 			$('.ui').addClass('disabled');
+
 			setTimeout(function () {
 				$('body').one('click', function (event) {
 					$('*').css('cursor', '');
-					$('.ui').removeClass('disabled');
+					$('.ui:not\(button.bugreport\)').removeClass('disabled');
+					$('button.bugreport').addClass('loading');
 					$.post('api/bugreport.php', {
 						'x': event.pageX,
 						'y': event.pageY,
+						'width': $(window).width(),
+						'height': $(window).height(),
 						'target': event.target.outerHTML,
 						'group': $.cookie('group'),
 						'type': $.cookie('type')
@@ -191,9 +195,11 @@ $('button.bugreport').popup({
 							success = false;
 						} finally {
 							if (success) {
+								$('button.bugreport').removeClass('loading');
 								$('button.bugreport i').removeClass('bug').addClass('send');
 								$('.popup.bugreport').html('<div class="success content"><div class="header">Сообщение об ошибке отправлено!</div></div>');
 							} else {
+								$('button.bugreport').removeClass('loading');
 								$('button.bugreport i').removeClass('bug').addClass('remove');
 								$('.popup.bugreport').html('<div class="fail content"><div class="header">Отправка сообщения об ошибке не удалась.</div></div>');
 							}
