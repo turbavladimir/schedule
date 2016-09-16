@@ -58,9 +58,9 @@ button.bugreport {
 .popup.bugreport {
 	position: fixed !important;
 }
-.popup.bugreport .content.success {
-	color: green;
+.popup.bugreport .content.success .header {
+	color: #1A531B !important;
 }
-.popup.bugreport .content.fail {
-	color: red;
+.popup.bugreport .content.fail .header {
+	color: #794B02 !important;
 }

@@ -164,14 +164,16 @@ $('button.bugreport').popup({
 	closable: false,
 	onHide: function () {
 		$('*').css('cursor', '');
+		$('.ui').removeClass('disabled');
 	},
 	onVisible: function () {
 		$('.popup.bugreport button.show').one('click',function () {
 			$('*').css('cursor', 'pointer');
+			$('.ui').addClass('disabled');
 			setTimeout(function () {
 				$('body').one('click', function (event) {
 					$('*').css('cursor', '');
-					console.log(event);
+					$('.ui').removeClass('disabled');
 					$.post('api/bugreport.php', {
 						'x': event.pageX,
 						'y': event.pageY,
@@ -182,6 +184,9 @@ $('button.bugreport').popup({
 						try {
 							var success = true;
 							data = JSON.parse(data);
+							if (!data['success']) {
+								success = false;
+							}
 						} catch (e) {
 							success = false;
 						} finally {
@@ -192,6 +197,10 @@ $('button.bugreport').popup({
 								$('button.bugreport i').removeClass('bug').addClass('remove');
 								$('.popup.bugreport').html('<div class="fail content"><div class="header">Отправка сообщения об ошибке не удалась.</div></div>');
 							}
+							setTimeout(function () {
+								$('button.bugreport').popup('toggle');
+							}, 1000);
+							$('.ui').removeClass('disabled');
 						}
 					});
 				})
