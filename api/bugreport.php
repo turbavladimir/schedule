@@ -13,7 +13,7 @@ if (file_exists('settings.php')) {
 }
 
 $ip = !empty($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
-$message = "From $ip\nData: " . print_r($_REQUEST, true);
+$message = "From: $ip\nUA: $_SERVER[HTTP_USER_AGENT]\nData: " . print_r($_REQUEST, true);
 if (mail($bugReportMail, 'Schedule bug report', $message)) {
 	echo json_encode(['success' => true]);
 } else {
