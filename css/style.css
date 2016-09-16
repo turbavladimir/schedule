@@ -61,10 +61,10 @@ button.bugreport {
 	z-index: 9999;
 }
 .popup.bugreport .content.success .header {
-	color: #1A531B !important;
+	color: #2C662D !important;
 }
 .popup.bugreport .content.fail .header {
-	color: #794B02 !important;
+	color: #9F3A38 !important;
 }
 .table.bugreport {
 	position: relative;
