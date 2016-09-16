@@ -51,9 +51,9 @@ thead {
 	padding-bottom: 0 !important;
 }
 button.bugreport {
-	position: fixed;
-	right: 10px;
-	bottom: 10px;
+	position: fixed !important;
+	right: 10px !important;
+	bottom: 10px !important;
 }
 .popup.bugreport {
 	position: fixed !important;
