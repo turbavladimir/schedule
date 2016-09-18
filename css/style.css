@@ -73,3 +73,11 @@ button.bugreport {
 .ui.table:last-child {
 	margin-bottom: 20px;
 }
+button.bugreport.notop {
+	z-index: 99;
+}
+@media screen and (max-width: 1280px) {
+	.ui.table.bugreport:last-child {
+		margin-bottom: 190px;
+	}
+}

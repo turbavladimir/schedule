@@ -1,9 +1,10 @@
 function setLoader(state) {
-	loader = $('#loader');
 	if (state) {
-		loader.addClass('active');
+		$('button.bugreport').addClass('notop');
+		$('#loader').addClass('active');
 	} else {
-		loader.removeClass('active');
+		$('button.bugreport').removeClass('notop');
+		$('#loader').removeClass('active');
 	}
 }
 
