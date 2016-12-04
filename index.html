@@ -9,12 +9,25 @@
 	<link rel="stylesheet" href="css/semantic.min.css">
 	<link rel="stylesheet" href="css/dropdown.min.css">
 	<link rel="stylesheet" href="css/loader.min.css">
+	<link rel="stylesheet" href="css/modal.min.css">
 	<link rel="stylesheet" href="css/popup.min.css">
 	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="ui text container">
 	<div class="bugreport ui page dimmer"></div>
+	<div class="ui basic modal">
+		<div class="image content">
+			<div class="image">
+				<i class="code icon"></i>
+			</div>
+			<div class="description">
+				<p>Сайт работает на основе данных <a href="http://novsu.ru/univer/timetable/spo/" target="_blank">НовГУ</a>, получаемых из .xls файлов</p>
+				<p>Если вы заметили несовпадение данных в таблицах и на этом сайте, то сообщите о нем, клинув кнопку с восклицательным знаком в нижнем правом углу.</p>
+				<p>Не сообщайте о заменах. О неправильно составленном расписании необходимо сообщать <a href="mailto:tehcol@novsu.ac.ru">Редактору Расписания</a></p>
+			</div>
+		</div>
+	</div>
 	<div id="loader" class="ui active inverted dimmer">
 		<div class="ui text loader">Загрузка</div>
 	</div>
@@ -37,8 +50,11 @@
 			<select id="groups" class="ui dropdown groups fluid"></select>
 		</div>
 		<div class="weektype sixteen wide column">
-			<div class="ui segment no-shadow">
-				<p class="week">Текущая неделя: <span id="weekType"></span></p>
+			<div class="ui segment no-shadow week">
+				<p class="segment">Текущая неделя: <span id="weekType"></span></p>
+			</div>
+			<div class="ui segment no-shadow error">
+				<p class="segment">Ошибка: <span id="error"></span></p>
 			</div>
 		</div>
 		<div id="container" class="sixteen wide column"></div>
@@ -57,9 +73,11 @@
 <script src="js/jquery.cookie.min.js"></script>
 <script src="js/semantic.min.js"></script>
 <script src="js/dropdown.min.js"></script>
+<script src="js/modal.min.js"></script>
 <script src="js/popup.min.js"></script>
-<script src="js/script.js"></script>
+<script src="js/html2canvas.js"></script>
 <script src="js/bugreport.js"></script>
+<script src="js/script.js"></script>
 <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter36039930 = new Ya.Metrika({ id:36039930, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/36039930" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 </body>
 </html>

@@ -27,7 +27,7 @@ p.time {
 .controls {
 	margin: 10px;
 }
-.segment p.week, thead th {
+.segment p.segment, thead th {
 	color: rgba(0, 0, 0, 0.6) !important;
 	font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
 	text-transform: none;
@@ -76,8 +76,28 @@ button.bugreport {
 button.bugreport.notop {
 	z-index: 99;
 }
+.ui.segment.error {
+	background-color: #FFE8E6;
+	display: none;
+}
+.ui.segment.error p {
+	color: #DB2828 !important;
+}
 @media screen and (max-width: 1280px) {
 	.ui.table.bugreport:last-child {
 		margin-bottom: 190px;
 	}
+}
+.report-target {
+	background-color: indianred;
+}
+.ui.modal.basic .description {
+	font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	text-transform: none;
+	text-shadow: none;
+	font-weight: bold;
+	line-height: 1em;
+	font-style: normal;
+	text-align: center;
+	text-decoration: none;
 }

@@ -3,7 +3,9 @@ function setLoader(state) {
 		$('button.bugreport').addClass('notop');
 		$('#loader').addClass('active');
 	} else {
-		$('button.bugreport').removeClass('notop');
+		if (!$('.ui.basic.modal').modal('is active')) {
+			$('button.bugreport').removeClass('notop');
+		}
 		$('#loader').removeClass('active');
 	}
 }
@@ -57,6 +59,20 @@ function parserFull(data) {
 function parserShort(data) {
 	var days = ['Сегодня', 'Завтра'];
 	var response = $.parseJSON(data);
+
+	if (response.hasOwnProperty('error')) {
+		$('.ui.segment.week').hide();
+		$('#error').html(response.error);
+		$('.ui.segment.error').show();
+		setLoader(false);
+		$('button.bugreport').prop('disabled', true);
+		return;
+	} else {
+		$('.ui.segment.week').show();
+		$('.ui.segment.error').hide();
+		$('button.bugreport').prop('disabled', false);
+	}
+
 	if (response.lowWeek) {
 		$('#weekType').html('нижняя');
 	} else {
@@ -128,6 +144,18 @@ function loadGroups(course) {
 	});
 }
 
+if ($.cookie('warining') == undefined) {
+	$('.ui.basic.modal').modal({
+		onVisible: function () {
+			$('button.bugreport').addClass('notop');
+		},
+		onHidden: function () {
+			$.cookie('warining', true, {expires: 365});
+			$('button.bugreport').removeClass('notop');
+		}
+	}).modal('show');
+}
+
 $('#groups').change(function() {
 	loadSchedule($(this).val());
 	$.cookie('group', $(this).val(), {expires: 365});
@@ -152,7 +180,8 @@ $('#type .button').click(function () {
 });
 defaultType = $.cookie('type');
 if (!defaultType) {
-	defaultType = 'short'
+	defaultType = 'short';
+	$.cookie('type', 'short', {expires: 365});
 }
 $('#type .button[data-target=' + defaultType + ']').addClass('active');
 
