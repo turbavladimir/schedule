@@ -10,9 +10,9 @@ function setLoader(state) {
 	}
 }
 
-function parserFull(data) {
+function parserFull(response) {
 	var days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-	var response = $.parseJSON(data);
+
 	if (response.lowWeek) {
 		$('#weekType').html('нижняя');
 	} else {
@@ -56,22 +56,8 @@ function parserFull(data) {
 	setLoader(false);
 }
 
-function parserShort(data) {
+function parserShort(response) {
 	var days = ['Сегодня', 'Завтра'];
-	var response = $.parseJSON(data);
-
-	if (response.hasOwnProperty('error')) {
-		$('.ui.segment.week').hide();
-		$('#error').html(response.error);
-		$('.ui.segment.error').show();
-		setLoader(false);
-		$('button.bugreport').prop('disabled', true);
-		return;
-	} else {
-		$('.ui.segment.week').show();
-		$('.ui.segment.error').hide();
-		$('button.bugreport').prop('disabled', false);
-	}
 
 	if (response.lowWeek) {
 		$('#weekType').html('нижняя');
@@ -114,7 +100,29 @@ function loadSchedule(group) {
 	$.ajax({
 		url: 'api/index.php',
 		data: data,
-		success: (type == 'short') ? parserShort : parserFull
+		success: function (data) {
+			var response = $.parseJSON(data);
+
+			if (response.hasOwnProperty('error')) {
+				$('#container').html('');
+				$('.ui.segment.week').hide();
+				$('#error').html(response.error);
+				$('.ui.segment.error').show();
+				setLoader(false);
+				$('button.bugreport').prop('disabled', true);
+				return;
+			} else {
+				$('.ui.segment.week').show();
+				$('.ui.segment.error').hide();
+				$('button.bugreport').prop('disabled', false);
+			}
+
+			if (type == 'short') {
+				parserShort(response)
+			} else {
+				parserFull(response);
+			}
+		}
 	});
 }
 
