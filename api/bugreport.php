@@ -45,7 +45,7 @@ Content-Disposition: attachment
 
 <?=$image?>
 --PHP-mixed-<?=$rand?>
-<?
+<?php
 $message = ob_get_clean();
 if (mail($bugReportMail, 'Schedule bug report', $message, $headers)) {
 	echo json_encode(['success' => true]);
