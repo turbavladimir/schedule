@@ -1,12 +1,22 @@
+<?php
+if (file_exists('settings.php')) {
+	require_once 'api/settings.php';
+} else {
+	require_once 'api/settings-default.php';
+}
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="pragma" content="no-cache" />
 	<title>Расписание ПТК НовГУ</title>
-	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
+	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="icons/apple-touch-icon-144x144.png" />
+	<link rel="apple-touch-icon-precomposed" sizes="152x152" href="icons/apple-touch-icon-152x152.png" />
+	<link rel="icon" type="image/png" href="icons/favicon-196x196.png" sizes="196x196" />
+	<link rel="icon" type="image/png" href="icons/favicon-32x32.png" sizes="32x32" />
+	<link rel="icon" type="image/png" href="icons/favicon-16x16.png" sizes="16x16" />
 	<link rel="stylesheet" href="css/semantic.min.css">
 	<link rel="stylesheet" href="css/dropdown.min.css">
 	<link rel="stylesheet" href="css/loader.min.css">
@@ -23,7 +33,7 @@
 				<i class="code icon"></i>
 			</div>
 			<div class="description">
-				<p>Сайт работает на основе расписаний <a href="http://novsu.ru/univer/timetable/spo/" target="_blank">НовГУ</a>, получаемых из .xls файлов</p>
+				<p>Сайт работает на основе расписаний <a href="<?=$url . $timeTable?>" target="_blank">НовГУ</a>, получаемых из .xls файлов</p>
 				<p>При несовпадении данных в таблицах и на этом сайте сообщите об этом, кликнув кнопку с восклицательным знаком в правом нижнем углу.</p>
 				<p>Замены не являются ошибками и не указываются в расписании.</p>
 			</div>
@@ -77,8 +87,8 @@
 <script src="js/modal.min.js"></script>
 <script src="js/popup.min.js"></script>
 <script src="js/html2canvas.js"></script>
-<script src="js/bugreport.js"></script>
-<script src="js/script.js"></script>
+<script src="js/bugreport.js?t=<?=filemtime('js/bugreport.js')?>"></script>
+<script src="js/script.js?t=<?=filemtime('js/script.js')?>"></script>
 <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter36039930 = new Ya.Metrika({ id:36039930, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/36039930" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 </body>
 </html>

@@ -14,20 +14,40 @@ if (file_exists('settings.php')) {
 
 $ip = !empty($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
 
-$message  = "<html>
-<body>
-IP: $ip<br>
-User Agent: $_SERVER[HTTP_USER_AGENT]<br>
-Click: $_REQUEST[x] $_REQUEST[y]<br>
-Screen: $_REQUEST[width]x$_REQUEST[height]<br>
-Group: $_REQUEST[group]<br>
-Type: $_REQUEST[type]<br>
-<b><a href='http://novsu.ru/univer/timetable/spo/' target='_blank'>Timetable</a></b><br>
+$rand = md5(date('r', time()));
+$headers = "MIME-Version: 1.0\r\n" .
+	"Content-Type: multipart/mixed; boundary=\"PHP-mixed-$rand\"";
+$image = chunk_split(preg_replace("/^data:image\/[^;]+;base64,/", '', $_REQUEST['image']));
 
-<img src='$_REQUEST[image]'>
-</body>";
+ob_start();
+?>
+--PHP-mixed-<?=$rand?>\r\n
+Content-Type: multipart/alternative; boundary="PHP-alt-<?=$rand?>"
 
-if (mail($bugReportMail, 'Schedule bug report', $message, "MIME-Version: 1.0\r\nContent-type: text/html; charset=utf-8\r\n")) {
+--PHP-alt-<?=$rand?>\r\n
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+IP: <?=$ip?><br>
+User Agent: <?=$_SERVER['HTTP_USER_AGENT']?><br>
+Click: <?=$_REQUEST['x']?> <?=$_REQUEST['y']?><br>
+Screen: <?=$_REQUEST['width']?>x<?=$_REQUEST['height']?><br>
+Group: <?=$_REQUEST['group']?><br>
+Type: <?=$_REQUEST['type']?><br>
+<b><a href='<?=$url . $timeTable?>' target='_blank'>Timetable</a></b><br>
+
+--PHP-alt-<?=$rand?>\r\n
+
+--PHP-mixed-<?=$rand?>\r\n
+Content-Type: image/jpeg; name="page.jpeg"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment
+
+<?=$image?>
+--PHP-mixed-<?=$rand?>
+<?
+$message = ob_get_clean();
+if (mail($bugReportMail, 'Schedule bug report', $message, $headers)) {
 	echo json_encode(['success' => true]);
 } else {
 	echo json_encode(['success' => false, 'error' => 'failed to send mail']);
