@@ -1,16 +1,36 @@
 <?php
 
-/*
-*It's a part of PTK NovSU schedule site page
-*@author Vladimir Turba <turbavladimir@yandex.ru>
-*@copyright 2016 Vladimir Turba
-*/
-
-if (file_exists('settings.php')) {
-	require_once 'settings.php';
-} else {
-	require_once 'settings-default.php';
+//load app settings
+$debug = false;
+if (! @include'settings/app.php') {
+	require_once 'settings/app.default.php';
+	$debug = true;
 }
+
+//create cache folders if they do not exist
+if (!is_dir($cacheDir)) {
+	mkdir($cacheDir);
+	mkdir($cacheDir . '/xls/');
+}
+
+//fetch timetable data and update cached xls files
+require_once 'Scrapper.php';
+$scrapper = new Scrapper($url, $timeTable, $cacheDir);
+$tableData = $scrapper->fetchTableData();
+$updatedFiles = $scrapper->updateFiles($tableData->getFiles());
+
+echo '<pre>'; print_r($updatedFiles); echo '</pre>';
+
+require_once 'DBHelper.php';
+DBHelper::get()->mergeGroups($tableData->getGroups());
+
+if ($updatedFiles || $debug) {
+	require_once 'Parser.php';
+	$parser = new Parser($cacheDir);
+	$parser->updateDbData($tableData->getGroups(), $tableData->getFileNames());
+}
+
+die();
 require_once 'functions.php';
 
 //check arguments
@@ -18,50 +38,41 @@ if (empty($_GET['group'])) {
 	die(json_encode(['error' => 'no group specified']));
 }
 
-$customGroups = [];
-if (file_exists('../custom')) {
-	$customGroups = scandir('../custom');
-	$customGroups = array_slice($customGroups, 2);
+$page = file_get_contents($url . $timeTable);
+preg_match($groupPattern, $_GET['group'], $groupMatch);
+//get match with relative xls file url and last update time
+if (!preg_match("/<a href=\"(.*)\" title=\"(.*)\">$groupMatch[0]<\/a>/", $page, $match)) {
+	die(json_encode(['error' => 'failed to parse schedule version in timetable']));
 }
-if (in_array($_GET['group'], $customGroups)) {
-	$json =  json_decode(file_get_contents("../custom/$_GET[group]"), true);
-} else {
-	$page = file_get_contents($url . $timeTable);
-	preg_match($groupPattern, $_GET['group'], $groupMatch);
-	//get match with relative xls file url and last update time
-	if (!preg_match("/<a href=\"(.*)\" title=\"(.*)\">$groupMatch[0]<\/a>/", $page, $match)) {
-		die(json_encode(['error' => 'failed to parse schedule version in timetable']));
-	}
-	if (!preg_match("/ptk\/(.*)\?/", $match[1], $filenameMatch)) {
-		die(json_encode(['error' => 'failed to parse xls filename']));
-	}
-	$filename = $filenameMatch[1];
+if (!preg_match("/ptk\/(.*)\?/", $match[1], $filenameMatch)) {
+	die(json_encode(['error' => 'failed to parse xls filename']));
+}
+$filename = $filenameMatch[1];
 
-	//generate or update cache if needed
-	if (isCacheExist()) {
-		//check schedule version
-		$timestamp = strtotime($match[2]);
-		if ($timestamp > getCacheTimestamp()) {
-			if (!file_exists("$tmpDir/xls")) {
-				mkdir("$tmpDir/xls", 0755, true);
-			}
-			file_put_contents("$tmpDir/xls/$filename", fopen("$url/$match[1]", 'r'));
-			updateCache($filename);
-			storeTimestamp($match[2]);
+//generate or update cache if needed
+if (isCacheExist()) {
+	//check schedule version
+	$timestamp = strtotime($match[2]);
+	if ($timestamp > getCacheTimestamp()) {
+		if (!file_exists("$cacheDir/xls")) {
+			mkdir("$cacheDir/xls", 0755, true);
 		}
-	} else {
-		if (!file_exists("$tmpDir/xls/$filename")) {
-			if (!file_exists("$tmpDir/xls")) {
-				mkdir("$tmpDir/xls", 0755, true);
-			}
-			file_put_contents("$tmpDir/xls/$filename", fopen("$url/$match[1]", 'r'));
-		}
-
+		file_put_contents("$cacheDir/xls/$filename", fopen("$url/$match[1]", 'r'));
 		updateCache($filename);
 		storeTimestamp($match[2]);
 	}
-	$json =  json_decode(file_get_contents("$tmpDir/json/$_GET[group]"), true);
+} else {
+	if (!file_exists("$cacheDir/xls/$filename")) {
+		if (!file_exists("$cacheDir/xls")) {
+			mkdir("$cacheDir/xls", 0755, true);
+		}
+		file_put_contents("$cacheDir/xls/$filename", fopen("$url/$match[1]", 'r'));
+	}
+
+	updateCache($filename);
+	storeTimestamp($match[2]);
 }
+$json =  json_decode(file_get_contents("$cacheDir/json/$_GET[group]"), true);
 
 if (isset($_GET['short'])) {
 	$weekDay = date('w');

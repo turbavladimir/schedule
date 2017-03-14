@@ -17,9 +17,9 @@ require_once 'PHPExcel/IOFactory.php';
 
 
 function isCacheExist() {
-	global $tmpDir;
-	if ((file_exists("$tmpDir/json/$_GET[group]")) &
-		(file_exists("$tmpDir/timestamp/$_GET[group]"))) {
+	global $cacheDir;
+	if ((file_exists("$cacheDir/json/$_GET[group]")) &
+		(file_exists("$cacheDir/timestamp/$_GET[group]"))) {
 		return true;
 	}
 
@@ -27,8 +27,8 @@ function isCacheExist() {
 }
 
 function getCacheTimestamp() {
-	global $tmpDir;
-	return file_get_contents("$tmpDir/timestamp/$_GET[group]");
+	global $cacheDir;
+	return file_get_contents("$cacheDir/timestamp/$_GET[group]");
 }
 
 function isDayEmty($day) {
@@ -74,8 +74,8 @@ function removeEmptyEndings(&$days) {
 }
 
 function updateCache($filename) {
-	global $tmpDir, $jsonFlags, $timePattern;
-	$xls = PHPExcel_IOFactory::load("$tmpDir/xls/$filename");
+	global $cacheDir, $jsonFlags, $timePattern;
+	$xls = PHPExcel_IOFactory::load("$cacheDir/xls/$filename");
 	$sheet = $xls->getActiveSheet();
 	if (($groupCell = getGroupCell($sheet)) === false) {
 		die(json_encode(['error' => 'Failed to find group in xls file']));
@@ -100,19 +100,19 @@ function updateCache($filename) {
 	removeEmptyDays($output['days']);
 	removeEmptyEndings($output['days']);
 
-	if (!file_exists("$tmpDir/json")) {
-		mkdir("$tmpDir/json", 0755, true);
+	if (!file_exists("$cacheDir/json")) {
+		mkdir("$cacheDir/json", 0755, true);
 	}
-	$jsonFile = "$tmpDir/json/$_GET[group]";
+	$jsonFile = "$cacheDir/json/$_GET[group]";
 	file_put_contents($jsonFile, json_encode($output, $jsonFlags));
 }
 
 function storeTimestamp($timeString) {
-	global $tmpDir;
-	if (!file_exists("$tmpDir/timestamp")) {
-		mkdir("$tmpDir/timestamp", 0755, true);
+	global $cacheDir;
+	if (!file_exists("$cacheDir/timestamp")) {
+		mkdir("$cacheDir/timestamp", 0755, true);
 	}
-	file_put_contents("$tmpDir/timestamp/$_GET[group]", strtotime($timeString));
+	file_put_contents("$cacheDir/timestamp/$_GET[group]", strtotime($timeString));
 }
 
 function appendDay(&$list, $day, $nextWeek = false) {
