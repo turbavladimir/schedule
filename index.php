@@ -1,8 +1,6 @@
 <?php
-if (file_exists('settings.php')) {
-	require_once 'api/settings.php';
-} else {
-	require_once 'api/settings-default.php';
+if (! @include'settings/app.php') {
+	require_once 'settings/app.default.php';
 }
 ?>
 <!DOCTYPE html>

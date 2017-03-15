@@ -1,15 +1,7 @@
 <?php
 
-/*
-*It's a part of PTK NovSU schedule site page
-*@author Vladimir Turba <turbavladimir@yandex.ru>
-*@copyright 2016 Vladimir Turba
-*/
-
-if (file_exists('settings.php')) {
-	require_once 'settings.php';
-} else {
-	require_once 'settings-default.php';
+if (! @include'../settings/app.php') {
+	require_once '../settings/app.default.php';
 }
 
 $ip = !empty($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];

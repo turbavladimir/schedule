@@ -1,16 +1,9 @@
 <?php
 
-/*
-*It's a part of PTK NovSU schedule site page
-*@author Vladimir Turba <turbavladimir@yandex.ru>
-*@copyright 2016 Vladimir Turba
-*/
-
-if (file_exists('settings.php')) {
-	require_once 'settings.php';
-} else {
-	require_once 'settings-default.php';
+if (! @include'../settings/app.php') {
+	require_once '../settings/app.default.php';
 }
+
 require_once 'parser.php';
 require_once 'PHPExcel.php';
 require_once 'PHPExcel/IOFactory.php';
@@ -24,33 +17,6 @@ function isCacheExist() {
 	}
 
 	return false;
-}
-
-function getCacheTimestamp() {
-	global $cacheDir;
-	return file_get_contents("$cacheDir/timestamp/$_GET[group]");
-}
-
-function isDayEmty($day) {
-	for ($i = 0; $i < count($day['schedule']) - 1; $i++) {
-		if (gettype($day['schedule'][$i]) == 'string') {
-			if (!in_array($day['schedule'][$i], [NULL, '', '&nbsp;'])) {
-				return false;
-			}
-		} else {
-			if (!in_array($day['schedule'][$i]['top'], [NULL, '', '&nbsp;']) ||
-				!in_array($day['schedule'][$i]['bottom'], [NULL, '', '&nbsp;'])) {
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-function removeEmptyDays(&$days) {
-	while (isDayEmty($days[count($days) - 1])) {
-		array_pop($days);
-	}
 }
 
 function removeEmptyEndings(&$days) {
