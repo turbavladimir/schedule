@@ -2,6 +2,9 @@
 if (! @include'settings/app.php') {
 	require_once 'settings/app.default.php';
 }
+ob_start();
+require_once 'api/teachers.php';
+ob_end_clean();
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -9,7 +12,7 @@ if (! @include'settings/app.php') {
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Расписание стдентов ПТК НовГУ</title>
+	<title>Расписание преподавателей ПТК НовГУ</title>
 	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="icons/apple-touch-icon-144x144.png" />
 	<link rel="apple-touch-icon-precomposed" sizes="152x152" href="icons/apple-touch-icon-152x152.png" />
 	<link rel="icon" type="image/png" href="icons/favicon-196x196.png" sizes="196x196" />
@@ -47,16 +50,12 @@ if (! @include'settings/app.php') {
 				<button class="ui button" data-target="full">Полное</button>
 			</div>
 		</div>
-		<div class="eight wide column">
-			<select id="courses" class="ui dropdown courses fluid">
-				<option value="1">1 курс</option>
-				<option value="2">2 курс</option>
-				<option value="3">3 курс</option>
-				<option value="4">4 курс</option>
+		<div class="sixteen wide column">
+			<select id="surnames" class="ui dropdown groups fluid">
+				<?foreach ($teachers as $teacher):?>
+					<option value="<?=$teacher?>"><?=$teacher?></option>
+				<?endforeach?>
 			</select>
-		</div>
-		<div class="eight wide column">
-			<select id="groups" class="ui dropdown groups fluid"></select>
 		</div>
 		<div class="weektype sixteen wide column">
 			<div class="ui segment no-shadow week">
@@ -85,9 +84,9 @@ if (! @include'settings/app.php') {
 <script src="js/modal.min.js"></script>
 <script src="js/popup.min.js"></script>
 <script src="js/html2canvas.min.js"></script>
-<script src="js/common.js?t=<?=filemtime('js/common.js')?>"></script>
 <script src="js/bugreport.js?t=<?=filemtime('js/bugreport.js')?>"></script>
-<script src="js/script.js?t=<?=filemtime('js/script.js')?>"></script>
+<script src="js/common.js?t=<?=filemtime('js/common.js')?>"></script>
+<script src="js/teachers.js?t=<?=filemtime('js/script.js')?>"></script>
 <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter36039930 = new Ya.Metrika({ id:36039930, clickmap:true, trackLinks:true, accurateTrackBounce:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/36039930" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 </body>
 </html>

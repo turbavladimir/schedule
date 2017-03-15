@@ -19,7 +19,7 @@ class DBHelper {
 
 	private function __construct() {
 		//load db settings
-		if (! @include'../settings/db.php') {
+		if (! @include __DIR__ . '/../settings/db.php') {
 			require '../settings/db.default.php';
 		}
 

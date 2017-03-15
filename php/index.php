@@ -1,4 +1,5 @@
 <?php
+//TODO: implement important errors handling(try catch)
 
 $start = time();
 

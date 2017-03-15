@@ -79,10 +79,18 @@ if (isset($_REQUEST['short'])) {
 	$json['days'][$nextDay] = getDay($nextDay, $weekTypeNum);
 } else {
 	for ($weekday = 0; $weekday < 6; $weekday++) {
-		$json['days'][] = getDay($weekday);
+		$json['days'][$weekday] = getDay($weekday);
 	}
 }
 
 $json['days'] = array_filter($json['days']);
+
+$fileName = glob("$cacheDir/xls/*" . intval($_REQUEST['group']) . "*.ts")[0];
+$lastCacheUpdate = file_get_contents($fileName);
+
+$json['updated'] = [
+	'check' => date('Y-m-d H:i:s', unserialize(file_get_contents("$cacheDir/lastgen"))['end']),
+	'update' => date('Y-m-d H:i:s', $lastCacheUpdate)
+];
 
 echo json_encode($json, JSON_UNESCAPED_UNICODE);

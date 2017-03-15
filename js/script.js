@@ -1,94 +1,3 @@
-function setLoader(state) {
-	if (state) {
-		$('button.bugreport').addClass('notop');
-		$('#loader').addClass('active');
-	} else {
-		if (!$('.ui.basic.modal').modal('is active')) {
-			$('button.bugreport').removeClass('notop');
-		}
-		$('#loader').removeClass('active');
-	}
-}
-
-function parserFull(response) {
-	var days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-
-	if (response.lowWeek) {
-		$('#weekType').html('нижняя');
-	} else {
-		$('#weekType').html('верхняя');
-	}
-
-	container = $('#container');
-	var content = '';
-	for (var i = 0; i < response.days.length; i++) {
-		if (!response.days[i].schedule.length) {
-			continue;
-		}
-		content += '<table class="ui celled table unstackable"><thead><tr><th colspan=2>' + days[i] + '</th></tr></thead><tbody>';
-		time = response.days[i].time[0].split('-');
-		if (typeof(response.days[i].schedule[0]) == 'string') {
-			content += '<td class="time"><p class="time">' + time[0] + '</p><p class="time">' +
-				time[1] + '</p></td><td>' + response.days[i].schedule[0] + '</tr>';
-		} else {
-			content += '<td class="time" rowspan="2"><p class="time">' + time[0] + '</p><p class="time">' +
-				time[1] + '</p></td><td class="mergedTop">' + response.days[i].schedule[0].top +
-				'</tr><tr><td class="mergedBottom">' + response.days[i].schedule[0].bottom + '</td>';
-		}
-		content += '</tr>';
-
-		for (var j = 1; j < response.days[i].schedule.length; j++) {
-			content += '<tr>';
-			time = response.days[i].time[j].split('-');
-			if (typeof(response.days[i].schedule[j]) == 'string') {
-				content += '<td class="time"><p class="time">' + time[0] + '</p><p class="time">' + time[1] +
-					'</p></td><td>' + response.days[i].schedule[j] + '</td>';
-			} else {
-				content += '<td class="time" rowspan=2><p class="time">' + time[0] + '</p><p class="time">' +
-					time[1] + '</p></td><td  class="mergedTop">' + response.days[i].schedule[j].top +
-					'</td></tr><tr><td  class="mergedBottom">' + response.days[i].schedule[j].bottom + '</td>';
-			}
-			content += '</tr>'
-		}
-		content += '</tbody></table>';
-	}
-	$('#container').html(content);
-	setLoader(false);
-}
-
-function parserShort(response) {
-	var days = ['Сегодня', 'Завтра'];
-
-	if (response.lowWeek) {
-		$('#weekType').html('нижняя');
-	} else {
-		$('#weekType').html('верхняя');
-	}
-
-	container = $('#container');
-	var content = '';
-	for (var i = 0 ; i < response.days.length; i++) {
-		content += '<table class="ui celled table unstackable"><thead><tr><th colspan=2>' + days[i] + '</th></tr></thead><tbody>';
-		if (typeof(response.days[i]) == 'string') {
-			if (response.days[i] == 'Saturday') {
-				day = 'субботу';
-			} else {
-				day = 'воскресенье';
-			}
-			content += '<tr><td colspan=2 align="center">' + 'Ничего на ' + day + '</td></tr>';
-		} else {
-			for (var j = 0; j < response.days[i].schedule.length; j++) {
-				time = response.days[i].time[j].split('-');
-				content += '<tr><td class="time"><p class="time">' + time[0] + '</p><p class="time">' +
-					time[1] + '</p></td><td>' + response.days[i].schedule[j] + '</td></tr>';
-			}
-		}
-		content += '</tbody></table>';
-	}
-	container.html(content);
-	setLoader(false);
-}
-
 function loadSchedule(group) {
 	setLoader(true);
 	type = $('#type>.active').attr('data-target');
@@ -117,6 +26,13 @@ function loadSchedule(group) {
 				$('button.bugreport').prop('disabled', false);
 			}
 
+			if (response.lowWeek) {
+				$('#weekType').html('Нижняя');
+			} else {
+				$('#weekType').html('Верхняя');
+			}
+
+			//TODO: implement important errors handling
 			if (type == 'short') {
 				parserShort(response)
 			} else {

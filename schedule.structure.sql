@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 14, 2017 at 07:35 PM
+-- Generation Time: Mar 15, 2017 at 12:23 PM
 -- Server version: 10.1.21-MariaDB
 -- PHP Version: 7.1.2
 
@@ -88,7 +88,10 @@ ALTER TABLE `groups`
 -- Indexes for table `schedule`
 --
 ALTER TABLE `schedule`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `group` (`group_id`),
+  ADD KEY `subject` (`subject_id`),
+  ADD KEY `teacher` (`teacher_id`);
 
 --
 -- Indexes for table `subjects`
@@ -117,7 +120,7 @@ ALTER TABLE `groups`
 -- AUTO_INCREMENT for table `schedule`
 --
 ALTER TABLE `schedule`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1635;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2635;
 --
 -- AUTO_INCREMENT for table `subjects`
 --
@@ -128,6 +131,18 @@ ALTER TABLE `subjects`
 --
 ALTER TABLE `teachers`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `schedule`
+--
+ALTER TABLE `schedule`
+  ADD CONSTRAINT `group` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`),
+  ADD CONSTRAINT `subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`),
+  ADD CONSTRAINT `teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

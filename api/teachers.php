@@ -1,5 +1,6 @@
 <?php
 
-require_once '../php/DBHelper.php';
+require_once __DIR__ . '/../php/DBHelper.php';
 
-echo json_encode(DBHelper::get()->getTeachers(), JSON_UNESCAPED_UNICODE);
+$teachers = DBHelper::get()->getTeachers();
+echo json_encode($teachers, JSON_UNESCAPED_UNICODE);
