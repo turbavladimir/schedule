@@ -2,31 +2,22 @@
 //TODO: implement caching
 //TODO: check if group exist before making queries
 
+//check arguments
+if ((!isset($_REQUEST['group']) || !$_REQUEST['group']) &&
+	(!isset($_REQUEST['surname']) || !$_REQUEST['surname'])) {
+	die(json_encode(['error' => 'no group or surname specified']));
+}
+
 if (! @include'../settings/app.php') {
 	require_once '../settings/app.default.php';
 }
-
 require_once '../php/DBHelper.php';
-
-//check arguments
-if (empty($_REQUEST['group'])) {
-	die(json_encode(['error' => 'no group specified']));
+if (isset($_REQUEST['surname']) && $_REQUEST['surname']) {
+	require_once 'json/teachers.php';
+} else {
+	require_once 'json/students.php';
 }
 
-function getStr($weektypes) {
-	global $teacher;
-
-	$str = '';
-	foreach ($weektypes as $subjects) {
-		$str .= current($subjects)['subject'] . ', ';
-		foreach ($subjects as $teacher) {
-			$str .= "$teacher[teacher], $teacher[hall], ";
-		}
-		$str .= "\n";
-	}
-
-	return rtrim($str, ", \n");
-}
 
 function formatMinutesOfDay($minutes) {
 	$hours = intval($minutes / 60);
@@ -35,38 +26,12 @@ function formatMinutesOfDay($minutes) {
 	return "$hours:" . sprintf("%02d", $minutes);
 }
 
-function getDay($weekday, $weekTypeNum = false) {
-	global $teacher;
-	$db = DBHelper::get();
-	$rawDay = $db->getGroupSchedule($db->escape($_REQUEST['group']), $weekday, $weekTypeNum);
-
-	$day = [];
-	foreach ($rawDay as $classes) {
-		$class = [];
-		foreach ($classes as $type => $weektypes) {
-			if (!$weekTypeNum && $type) {
-				$typeName = $type == 1 ? 'bottom' : 'top';
-				$class[$typeName] = getStr($weektypes);
-			} else {
-				$class = getStr($weektypes);
-			}
-		}
-		if (isset($class)) {
-			$day['schedule'][] = $class;
-			$day['time'][] = formatMinutesOfDay($teacher['start']) . '-' . formatMinutesOfDay($teacher['end']);
-		}
-	}
-
-	return $day;
-}
-
 $weekTypeNum = date('W') % 2 + 1;
 if ($invertWeekType) {
 	if ($weekTypeNum == 1) $weekTypeNum = 2;
 	if ($weekTypeNum == 2) $weekTypeNum = 1;
 }
 $json['lowWeek'] = $weekTypeNum == 1;
-
 
 if (isset($_REQUEST['short'])) {
 	//convert to 'weekday from monday'
@@ -85,12 +50,11 @@ if (isset($_REQUEST['short'])) {
 
 $json['days'] = array_filter($json['days']);
 
-$fileName = glob("$cacheDir/xls/*" . intval($_REQUEST['group']) . "*.ts")[0];
-$lastCacheUpdate = file_get_contents($fileName);
-
+$lastGen = unserialize(file_get_contents("$cacheDir/lastgen"));
 $json['updated'] = [
-	'check' => date('Y-m-d H:i:s', unserialize(file_get_contents("$cacheDir/lastgen"))['end']),
-	'update' => date('Y-m-d H:i:s', $lastCacheUpdate)
+	'check' => date('Y-m-d H:i:s', $lastGen['end']),
+	'update' => date('Y-m-d H:i:s', cacheTime()),
+	'error' => $lastGen['error'] //TODO: implement showing of error notification
 ];
 
 echo json_encode($json, JSON_UNESCAPED_UNICODE);

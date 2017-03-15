@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 15, 2017 at 12:23 PM
+-- Generation Time: Mar 15, 2017 at 03:24 PM
 -- Server version: 10.1.21-MariaDB
 -- PHP Version: 7.1.2
 
@@ -43,12 +43,12 @@ CREATE TABLE `schedule` (
   `group_id` int(11) NOT NULL,
   `subject_id` int(11) NOT NULL,
   `weekday` int(1) NOT NULL COMMENT 'From monday',
-  `teacher_id` int(11) NOT NULL,
-  `hall` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `weektype` int(1) DEFAULT NULL COMMENT '0 - all, 1 - bottom, 2 - top',
+  `teacher_id` int(11) DEFAULT NULL,
+  `hall` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `weektype` int(1) NOT NULL COMMENT '0 - all, 1 - bottom, 2 - top',
   `start` int(4) NOT NULL COMMENT 'in minutes of day',
   `end` int(4) NOT NULL COMMENT 'in minutes of day',
-  `comments` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+  `comments` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -115,22 +115,22 @@ ALTER TABLE `teachers`
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=288;
 --
 -- AUTO_INCREMENT for table `schedule`
 --
 ALTER TABLE `schedule`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2635;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6010;
 --
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=124;
 --
 -- AUTO_INCREMENT for table `teachers`
 --
 ALTER TABLE `teachers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
 --
 -- Constraints for dumped tables
 --

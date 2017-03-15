@@ -1,11 +1,13 @@
 <?php
 //TODO: implement important errors handling(try catch)
 
-$start = time();
+global $lastGen;
+$lastGen['start'] = time();
+$lastGen['error'] = false;
 
 //load app settings
 $debug = false;
-if (! @include'../settings/app.php') { //NOTE: when loaded default config $debug variable set to true
+if (! @include'../settings/app.php') {
 	require_once '../settings/app.default.php';
 	$debug = true;
 }
@@ -31,4 +33,5 @@ if ($updatedFiles || $debug) {
 	$parser->updateDbData($tableData->getGroups(), $tableData->getFileNames());
 }
 
-file_put_contents("$cacheDir/lastgen", serialize(['start' => $start, 'end' => time()]));
+$lastGen['end'] = time();
+file_put_contents("$cacheDir/lastgen", serialize($lastGen));

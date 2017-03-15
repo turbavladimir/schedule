@@ -36,15 +36,26 @@ class Parser {
 				$course = $groups[intval($group['name'])]->course;
 				$timeCol = $this->getTimeCol($group['col'], $groupsRow + 1);
 
-				foreach ($weekDayRanges as $weekday => $range) {
-					$schedule = $this->getSchedule($timeCol, $group['col'], $range['start'], $range['end']);
-					if ($schedule) {
-						$calls = $this->getCallsSchedule($timeCol, $range['start'], $range['end']);
-						DBHelper::get()->insertDay($schedule, $calls, $group, $course, $weekday);
+				try {
+					foreach ($weekDayRanges as $weekday => $range) {
+						$schedule = $this->getSchedule($timeCol, $group['col'], $range['start'], $range['end']);
+						if ($schedule) {
+							$calls = $this->getCallsSchedule($timeCol, $range['start'], $range['end']);
+							DBHelper::get()->updateDay($schedule, $calls, $group, $course, $weekday);
+						}
 					}
+				} catch (Exception $e) {
+					global $lastGen;
+					$lastGen['error'] = true;
+
+					$days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+					echo '<pre>';
+					echo "Failed to parse $group[name] at $days[$weekday]: {$e->getMessage()}";
+					echo '</pre>';
+					DBHelper::get()->clearGroupSchedule($group['name']);
+					DBHelper::get()->removeGroup($group['name']);
 				}
 			}
-			return;//TODO: remove
 		}
 	}
 
@@ -151,11 +162,18 @@ class Parser {
 	}
 
 	private function timeCellToArray($data) {
+		$out = [];
+		set_error_handler(function () use ($data, $out) {
+			echo '<pre>'; echo "Notice when parsing time cell: $data"; echo '</pre>';
+		}, E_WARNING | E_NOTICE);
+
 		$parts = explode('-', $data);
 		$start = explode('.', $parts[0]);
 		$end = explode('.', $parts[1]);
 
-		return ['start' => $start[0] * 60 + $start[1], 'end' => $end[0] * 60 + $end[1]];
+		$out =  ['start' => $start[0] * 60 + $start[1], 'end' => $end[0] * 60 + $end[1]];
+		restore_error_handler();
+		return $out;
 	}
 
 	private function getCallsSchedule($timeCol, $startRow, $endRow) {
