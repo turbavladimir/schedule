@@ -154,13 +154,13 @@ class DBHelper {
 		$weekType = $weektype;
 
 		$res = $this->db->query(
-			"SELECT subject_id,teacher_id,hall,start,end,comments,weektype,surname AS teacher,name AS subject " .
-			"FROM schedule,subjects,teachers " .
+			"SELECT subject_id,teacher_id,group_id,hall,start,end,comments,weektype,subjects.name AS subject,groups.name AS 'group' " .
+			"FROM schedule,subjects,teachers,groups " .
 			"WHERE teacher_id = (SELECT id FROM teachers WHERE surname='$teacher') " .
 			"AND weekday=$weekday " .
 			($weektype ? "AND weektype in (0,$weektype) " : '') .
-			"AND teacher_id=teachers.id " .
 			"AND subject_id=subjects.id " .
+			"AND group_id=groups.id " .
 			"ORDER BY start ASC;"
 		);
 		if ($res === false) {

@@ -10,10 +10,10 @@ function getDay($weekday, $weekTypeNum = false) {
 		foreach ($classes as $type => $weektype) {
 			if (!$weekTypeNum && $type) {
 				$typeName = $type == 1 ? 'bottom' : 'top';
-				$class[$typeName] = "$weektype[subject], $weektype[hall]"
+				$class[$typeName] = "$weektype[group], $weektype[subject], $weektype[hall]"
 					. ($weektype['comments'] ? ", $weektype[comments]" : '');
 			} else {
-				$class = "$weektype[subject], $weektype[hall]" . ($weektype['comments'] ? ", $weektype[comments]" : '');
+				$class = "$weektype[group], $weektype[subject], $weektype[hall]" . ($weektype['comments'] ? ", $weektype[comments]" : '');
 			}
 		}
 		if (isset($class)) {
