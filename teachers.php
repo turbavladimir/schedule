@@ -51,7 +51,7 @@ ob_end_clean();
 			</div>
 		</div>
 		<div class="sixteen wide column">
-			<select id="surnames" class="ui dropdown groups fluid">
+			<select id="surnames" class="ui dropdown surnames groups fluid">
 				<?foreach ($teachers as $teacher):?>
 					<option value="<?=$teacher?>"><?=$teacher?></option>
 				<?endforeach?>

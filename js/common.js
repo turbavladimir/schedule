@@ -210,10 +210,18 @@ if (userType == 'student') {
 
 	loadGroups(defaultCourse);
 } else {
-	$('#surnames').change(function() {
+	surnames = $('#surnames');
+
+	defaultSurname = $.cookie('surname');
+	if (!defaultSurname) {
+		defaultSurname = surnames.val();
+	}
+	$('.dropdown.surnames').dropdown('set selected', defaultSurname);
+
+	surnames.change(function() {
 		loadSchedule($(this).val());
 		$.cookie('surname', $(this).val(), {expires: 365});
 	});
 
-	loadSchedule($('#surnames').val());
+	loadSchedule(defaultSurname);
 }
