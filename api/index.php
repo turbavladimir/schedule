@@ -18,7 +18,6 @@ if (isset($_REQUEST['surname']) && $_REQUEST['surname']) {
 	require_once 'json/students.php';
 }
 
-
 function formatMinutesOfDay($minutes) {
 	$hours = intval($minutes / 60);
 	$minutes = $minutes % 60;
@@ -49,12 +48,12 @@ if (isset($_REQUEST['short'])) {
 }
 
 $json['days'] = array_filter($json['days']);
+$json['updated']['update'] = date('Y-m-d H:i:s', cacheTime());
 
-$lastGen = unserialize(file_get_contents("$cacheDir/lastgen"));
-$json['updated'] = [
-	'check' => date('Y-m-d H:i:s', $lastGen['end']),
-	'update' => date('Y-m-d H:i:s', cacheTime()),
-	'error' => $lastGen['error'] //TODO: implement showing of error notification
-];
+if (is_file("$cacheDir/lastgen")) {
+	$lastGen = unserialize(file_get_contents("$cacheDir/lastgen"));
+	$json['updated']['check'] = date('Y-m-d H:i:s', $lastGen['end']);
+	$json['updated']['error'] = $lastGen['error']; //TODO: implement showing of error notification
+}
 
 echo json_encode($json, JSON_UNESCAPED_UNICODE);

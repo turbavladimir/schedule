@@ -248,7 +248,7 @@ class DBHelper {
 			}
 		}
 
-		throw new Exception('Unknown class fromat: ' . print_r($class, true));
+		throw new Exception('Unknown class format: ' . print_r($class, true));
 	}
 
 	private function addTeachers($classes) {

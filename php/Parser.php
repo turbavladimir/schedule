@@ -27,7 +27,12 @@ class Parser {
 			/**@var $file File*/
 			$this->loadSheet($file->path);
 
-			$groupsRow = $this->findGroupsRow();
+			try {
+				$groupsRow = $this->findGroupsRow();
+			} catch (Exception $e) {
+				echo "<pre>{$e->getMessage()} in {$file->path}</pre>";
+				continue;
+			}
 			$groupList = $this->getGroupList($groupsRow);
 
 			$weekDayRanges = $this->getWeekDayRanges($groupsRow + 1);
@@ -49,9 +54,7 @@ class Parser {
 					$lastGen['error'] = true;
 
 					$days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-					echo '<pre>';
-					echo "Failed to parse $group[name] at $days[$weekday]: {$e->getMessage()}";
-					echo '</pre>';
+					echo "<pre>Failed to parse $group[name] at $days[$weekday]: {$e->getMessage()}</pre>";
 					DBHelper::get()->clearGroupSchedule($group['name']);
 					DBHelper::get()->removeGroup($group['name']);
 				}
