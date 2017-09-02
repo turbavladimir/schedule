@@ -3,11 +3,11 @@ var months = ['Январь','Февраль','Март','Апрель','Май'
 var clock = $('#clock');
 
 function updateClock() {
-	var d = new Date();
-	var hour = d.getHours();
-	var min = d.getMinutes();
-	var day = d.getDay() - 1;
-	if (day == -1) day = 6;
+	d = new Date();
+	hour = d.getHours();
+	min = d.getMinutes();
+	day = d.getDay() - 1;
+	if (day === -1) day = 6;
 	if (min <= 9) min = "0" + min;
 	if (hour <= 9) hour = "0" + hour;
 
@@ -47,7 +47,7 @@ function parserFull(response) {
 		for (var subject in response.days[day].schedule) {
 			content += '<tr>';
 			time = response.days[day].time[subject].split('-');
-			if (typeof(response.days[day].schedule[subject]) == 'string') {
+			if (typeof(response.days[day].schedule[subject]) === 'string') {
 				content += '<td class="time"><p class="time">' + time[0] + '</p><p class="time">' + time[1] +
 					'</p></td><td>' + response.days[day].schedule[subject] + '</td>';
 			} else {
@@ -110,14 +110,10 @@ function loadGroups(course) {
 
 function loadSchedule(key) {
 	setLoader(true);
-	if (userType == 'student') {
-		data = {'group': key};
-	} else {
-		data = {'surname': key};
-	}
+	data = {'group': key};
 
 	type = $('#type>.active').attr('data-target');
-	if (type == 'short') {
+	if (type === 'short') {
 		data['short'] = true;
 	}
 	$.ajax({
@@ -147,7 +143,7 @@ function loadSchedule(key) {
 			}
 
 			//TODO: implement important errors handling
-			if (type == 'short') {
+			if (type === 'short') {
 				parserShort(response)
 			} else {
 				parserFull(response);
@@ -157,7 +153,7 @@ function loadSchedule(key) {
 }
 
 //show message to first time users
-if ($.cookie('warining') == undefined) {
+if ($.cookie('warining') === undefined) {
 	$('.ui.basic.modal').modal({
 		onVisible: function () {
 			$('button.bugreport').addClass('notop');
@@ -169,7 +165,6 @@ if ($.cookie('warining') == undefined) {
 	}).modal('show');
 }
 
-
 $('.dropdown').dropdown();
 
 //initialaize type changer
@@ -177,11 +172,7 @@ $('#type .button').click(function () {
 	$.cookie('type', $(this).attr('data-target'), {expires: 365});
 	$('#type .button').removeClass('active');
 	$(this).addClass('active');
-	if (userType == 'student') {
-		loadSchedule($('#groups').val());
-	} else {
-		loadSchedule($('#surnames').val());
-	}
+	loadSchedule($('#groups').val());
 });
 defaultType = $.cookie('type');
 if (!defaultType) {
@@ -190,38 +181,21 @@ if (!defaultType) {
 }
 $('#type .button[data-target=' + defaultType + ']').addClass('active');
 
-if (userType == 'student') {
-	defaultCourse = $.cookie('course');
-	if (!defaultCourse) {
-		defaultCourse = 1;
-	}
-	$('.dropdown.courses').dropdown('set selected', defaultCourse);
-
-	courses = $('#courses');
-	courses.change(function () {
-		loadGroups($(this).val());
-		$.cookie('course', $(this).val(), {expires: 365});
-	});
-
-	$('#groups').change(function() {
-		loadSchedule($(this).val());
-		$.cookie('group', $(this).val(), {expires: 365});
-	});
-
-	loadGroups(defaultCourse);
-} else {
-	surnames = $('#surnames');
-
-	defaultSurname = $.cookie('surname');
-	if (!defaultSurname) {
-		defaultSurname = surnames.val();
-	}
-	$('.dropdown.surnames').dropdown('set selected', defaultSurname);
-
-	surnames.change(function() {
-		loadSchedule($(this).val());
-		$.cookie('surname', $(this).val(), {expires: 365});
-	});
-
-	loadSchedule(defaultSurname);
+defaultCourse = $.cookie('course');
+if (!defaultCourse) {
+	defaultCourse = 1;
 }
+$('.dropdown.courses').dropdown('set selected', defaultCourse);
+
+courses = $('#courses');
+courses.change(function () {
+	loadGroups($(this).val());
+	$.cookie('course', $(this).val(), {expires: 365});
+});
+
+$('#groups').change(function() {
+	loadSchedule($(this).val());
+	$.cookie('group', $(this).val(), {expires: 365});
+});
+
+loadGroups(defaultCourse);

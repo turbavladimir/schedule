@@ -1,6 +1,9 @@
 <?php
 
 class File {
+	public $path;
+	public $timestamp;
+
 	function __construct($path, $timestamp) {
 		$this->path = $path;
 		$this->timestamp = $timestamp;
@@ -8,6 +11,10 @@ class File {
 }
 
 class Group {
+	public $id;
+	public $course;
+	public $timestamp;
+
 	function __construct($id, $course, $timestamp) {
 		$this->id = intval($id);
 		$this->course = $course;

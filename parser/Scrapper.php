@@ -7,7 +7,7 @@ class Scrapper {
 	
 	function __construct($rootUrl, $timeTable, $cacheFolder) {
 		$this->rootUrl = $rootUrl;
-		$this->cacheDir = $cacheFolder;
+		$this->cacheFolder = $cacheFolder;
 		$this->page = file_get_contents($rootUrl . $timeTable);
 	}
 
@@ -40,7 +40,7 @@ class Scrapper {
 	}
 
 	public function updateFiles($files) {
-		$xlsFolder = $this->cacheDir . '/xls/';
+		$xlsFolder = $this->cacheFolder . '/xls/';
 
 		$updatedFiles = [];
 		//iterate trought all links and check whether file up to date or not

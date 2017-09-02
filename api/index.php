@@ -1,30 +1,52 @@
 <?php
-//TODO: implement caching
-//TODO: check if group exist before making queries
+//TODO: check whether group exist before making queries
 
 //check arguments
-if ((!isset($_REQUEST['group']) || !$_REQUEST['group']) &&
-	(!isset($_REQUEST['surname']) || !$_REQUEST['surname'])) {
-	die(json_encode(['error' => 'no group or surname specified']));
+if ((!isset($_REQUEST['group']) || !$_REQUEST['group'])) {
+	die(json_encode(['error' => 'no group specified']));
 }
 
-if (! @include'../settings/app.php') {
+if (!@include'../settings/app.php') {
 	require_once '../settings/app.default.php';
 }
+
 require_once '../php/DBHelper.php';
-if (isset($_REQUEST['surname']) && $_REQUEST['surname']) {
-	require_once 'json/teachers.php';
-} else {
-	require_once 'json/students.php';
+
+function cacheTime() {
+	global $cacheDir;
+	$fileName = glob("$cacheDir/xls/*" . intval($_REQUEST['group']) . "*.ts")[0];
+	return file_get_contents($fileName);
 }
 
 function formatMinutesOfDay($minutes) {
 	$hours = intval($minutes / 60);
 	$minutes = $minutes % 60;
-
 	return "$hours:" . sprintf("%02d", $minutes);
 }
 
+function getDay($weekday, $weekTypeNum = false) {
+	$db = DBHelper::get();
+	$rawDay = $db->getGroupSchedule($db->escape($_REQUEST['group']), $weekday, $weekTypeNum);
+
+	$day = [];
+	foreach ($rawDay as $classes) {
+		$class = [];
+		foreach ($classes as $type => $item) {
+			if (!$weekTypeNum && $type) {
+				$typeName = $type == 1 ? 'bottom' : 'top';
+				$class[$typeName] = $item['subject'];
+			} else {
+				$class = $item['subject'];
+			}
+		}
+		$day['schedule'][] = $class;
+		$day['time'][] = formatMinutesOfDay($item['start']) . '-' . formatMinutesOfDay($item['end']);
+	}
+
+	return $day;
+}
+
+//in DB: 0 - any, 1 - low, 2 - high
 $weekTypeNum = date('W') % 2 + 1;
 if ($invertWeekType) {
 	if ($weekTypeNum == 1) $weekTypeNum = 2;

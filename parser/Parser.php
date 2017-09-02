@@ -12,7 +12,7 @@ class Parser {
 		$this->cacheFolder = $cacheFolder;
 	}
 
-	private function getGroupCourse($groups, $groupId) {
+	public function getGroupCourse($groups, $groupId) {
 		foreach ($groups as $group) {
 			if ($group->id == $groupId) {
 				return $group;
@@ -22,52 +22,12 @@ class Parser {
 		throw new Exception('Failed to find group by id');
 	}
 
-	public function updateDbData($groups, $files) {
-		foreach ($files as $file) {
-			/**@var $file File*/
-			$this->loadSheet($file->path);
-
-			try {
-				$groupsRow = $this->findGroupsRow();
-			} catch (Exception $e) {
-				echo "<pre>{$e->getMessage()} in {$file->path}</pre>";
-				continue;
-			}
-			$groupList = $this->getGroupList($groupsRow);
-
-			$weekDayRanges = $this->getWeekDayRanges($groupsRow + 1);
-			foreach ($groupList as $group) {
-				DBHelper::get()->clearGroupSchedule($group['name']);
-				$course = $groups[intval($group['name'])]->course;
-				$timeCol = $this->getTimeCol($group['col'], $groupsRow + 1);
-
-				try {
-					foreach ($weekDayRanges as $weekday => $range) {
-						$schedule = $this->getSchedule($timeCol, $group['col'], $range['start'], $range['end']);
-						if ($schedule) {
-							$calls = $this->getCallsSchedule($timeCol, $range['start'], $range['end']);
-							DBHelper::get()->updateDay($schedule, $calls, $group, $course, $weekday);
-						}
-					}
-				} catch (Exception $e) {
-					global $lastGen;
-					$lastGen['error'] = true;
-
-					$days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-					echo "<pre>Failed to parse $group[name] at $days[$weekday]: {$e->getMessage()}</pre>";
-					DBHelper::get()->clearGroupSchedule($group['name']);
-					DBHelper::get()->removeGroup($group['name']);
-				}
-			}
-		}
-	}
-
-	private function loadSheet($path) {
+	public function loadSheet($path) {
 		$xls = PHPExcel_IOFactory::load($this->cacheFolder . "/xls/$path");
 		$this->sheet = $xls->getActiveSheet();
 	}
 
-	private function findGroupsRow() {
+	public function findGroupsRow() {
 		for ($i = 0; $i < $this->sheet->getHighestRow(); $i++) {
 			if ($this->sheet->getCellByColumnAndRow(0, $i)->getValue() == 'ПОНЕДЕЛЬНИК') {
 				return $i - 1;
@@ -77,7 +37,7 @@ class Parser {
 		throw new Exception('Failed to find row with group numbers');
 	}
 
-	private function getGroupList($row) {
+	public function getGroupList($row) {
 		$groups = [];
 
 		$maxColumn = PHPExcel_Cell::columnIndexFromString($this->sheet->getHighestColumn());
@@ -91,19 +51,7 @@ class Parser {
 		return $groups;
 	}
 
-	private function isMerged($col, $row) {
-		$cell = $this->sheet->getCellByColumnAndRow($col, $row);
-
-		foreach ($this->sheet->getMergeCells() as $cells) {
-			if ($cell->isInRange($cells)) {
-				return $cells;
-			}
-		}
-
-		return false;
-	}
-
-	private function getWeekDayRanges($startRow) {
+	public function getWeekDayRanges($startRow) {
 		$lastWeekDay = $this->sheet->getCellByColumnAndRow(0, $startRow)->getValue();
 		$lastRow = $startRow;
 		$ranges = [];
@@ -124,7 +72,7 @@ class Parser {
 		return $ranges;
 	}
 
-	private function getTimeCol($startCol, $row) {
+	public function getTimeCol($startCol, $row) {
 		for ($i = $startCol; $i > 0; $i--) {
 			if (preg_match('/\d+\.\d+\-\d+\.\d+/', $this->getCellValue($i, $row))) {
 				return $i;
@@ -132,6 +80,89 @@ class Parser {
 		}
 
 		throw new Exception('Failed to find time column');
+	}
+
+	public function getCallsSchedule($timeCol, $startRow, $endRow) {
+		$output = [];
+		for ($i = $startRow; $i <= $endRow; $i++) {
+			if ($this->getCellValue($timeCol, $i) == NULL) {
+				continue;
+			}
+			if ($this->isMerged($timeCol, $i) !== false) {
+				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
+				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
+				$i += $timeBorders[1] - $timeBorders[0];
+			} else {
+				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
+			}
+		}
+
+		return $output;
+	}
+
+	public function getSchedule($timeCol, $itemCol, $startRow, $endRow) {
+		$output = [];
+		for ($i = $startRow; $i <= $endRow; $i++) {
+			$topItem = $this->getCellValue($itemCol, $i);
+			if ($this->isMerged($timeCol, $i) !== false) {
+				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
+				$itemBorders = $this->getBorderRowsOfMergedCell($itemCol, $i);
+				if ($this->isMerged($itemCol, $i) !== false) {
+					if ($topItem == NULL) {
+						$output[] = $topItem;
+						$i += $timeBorders[1] - $timeBorders[0];
+						continue;
+					}
+					if ($timeBorders == $itemBorders) {
+						$output[] = $topItem;
+						$i += $timeBorders[1] - $timeBorders[0];
+					} else {
+						$offset = 1;
+						while ($this->getCellValue($itemCol, $i + $offset) == $topItem) {
+							$offset++;
+						}
+						$output[] = [
+							'top' => $topItem,
+							'bottom' => $this->getCellValue($itemCol, $i + $offset)
+						];
+						$i += $timeBorders[1] - $timeBorders[0]; //NOTE: fixed here, check everything
+					}
+				} else {
+					$lowWeekOffset = 1;
+					if ($topItem == NULL) {
+						$output[] = $topItem;
+						$i += $lowWeekOffset;
+						continue;
+					}
+					while ($this->getCellValue($itemCol, $i + $lowWeekOffset) == $topItem) {
+						$lowWeekOffset++;
+					}
+					$output[] = [
+						'top' => $topItem,
+						'bottom' => $this->getCellValue($itemCol, $i + $lowWeekOffset)
+					];
+					$i += $timeBorders[1] - $timeBorders[0];
+				}
+			} else {
+				$output[] = $topItem;
+			}
+
+			array_walk_recursive($output, [$this, 'replaceEmptinesAliases']);
+		}
+
+		return array_filter($output);//TODO: ensure that it's not gonna remove middle-day classes, implements insert of empty classes
+	}
+
+	private function isMerged($col, $row) {
+		$cell = $this->sheet->getCellByColumnAndRow($col, $row);
+
+		foreach ($this->sheet->getMergeCells() as $cells) {
+			if ($cell->isInRange($cells)) {
+				return $cells;
+			}
+		}
+
+		return false;
 	}
 
 	private function getCellValue($col, $row) {
@@ -171,82 +202,14 @@ class Parser {
 		}, E_WARNING | E_NOTICE);
 
 		$parts = explode('-', $data);
+		if (count($parts) < 2) {
+			$parts = explode(' ', $data);
+		}
 		$start = explode('.', $parts[0]);
 		$end = explode('.', $parts[1]);
 
 		$out =  ['start' => $start[0] * 60 + $start[1], 'end' => $end[0] * 60 + $end[1]];
 		restore_error_handler();
 		return $out;
-	}
-
-	private function getCallsSchedule($timeCol, $startRow, $endRow) {
-		$output = [];
-		for ($i = $startRow; $i <= $endRow; $i++) {
-			if ($this->getCellValue($timeCol, $i) == NULL) {
-				continue;
-			}
-			if ($this->isMerged($timeCol, $i) !== false) {
-				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
-				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
-				$i += $timeBorders[1] - $timeBorders[0];
-			} else {
-				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
-			}
-		}
-
-		return $output;
-	}
-
-	private function getSchedule($timeCol, $itemCol, $startRow, $endRow) {
-		$output = [];
-		for ($i = $startRow; $i <= $endRow; $i++) {
-			$topItem = $this->getCellValue($itemCol, $i);
-			if ($this->isMerged($timeCol, $i) !== false) {
-				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
-				$itemBorders = $this->getBorderRowsOfMergedCell($itemCol, $i);
-				if ($this->isMerged($itemCol, $i) !== false) {
-					if ($topItem == NULL) {
-						$output[] = $topItem;
-						$i += $timeBorders[1] - $timeBorders[0];
-						continue;
-					}
-					if ($timeBorders == $itemBorders) {
-						$output[] = $topItem;
-						$i += $timeBorders[1] - $timeBorders[0];
-					} else {
-						$offset = 1;
-						while ($this->getCellValue($itemCol, $i + $offset) == $topItem) {
-							$offset++;
-						}
-						$output[] = [
-							'top' => $topItem,
-							'bottom' => $this->getCellValue($itemCol, $i + $offset)
-						];
-						$i += $offset;
-					}
-				} else {
-					$lowWeekOffset = 1;
-					if ($topItem == NULL) {
-						$output[] = $topItem;
-						$i += $lowWeekOffset;
-						continue;
-					}
-					while ($this->getCellValue($itemCol, $i + $lowWeekOffset) == $topItem) {
-						$lowWeekOffset++;
-					}
-					$output[] = [
-						'top' => $topItem,
-						'bottom' => $this->getCellValue($itemCol, $i + $lowWeekOffset)
-					];
-					$i += $timeBorders[1] - $timeBorders[0];
-				}
-			} else {
-				$output[] = $topItem;
-			}
-
-			array_walk_recursive($output, [$this, 'replaceEmptinesAliases']);
-		}
-
-		return array_filter($output);//TODO: ensure that it's not gonna remove middle-day classes, implements insert of empty classes
 	}
 }

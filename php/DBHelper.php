@@ -42,47 +42,40 @@ class DBHelper {
 	}
 
 	public function clearGroupSchedule($groupName) {
-		$this->db->query("DELETE FROM schedule WHERE group_id = (SELECT id FROM groups WHERE name = '$groupName')");
+		$this->db->query("DELETE FROM students_schedule WHERE group_id = (SELECT id FROM groups WHERE name = '$groupName')");
 	}
 
 	public function removeGroup($groupName) {
 		$this->db->query("DELETE FROM groups WHERE name = '$groupName'");
 	}
 
-	public function updateDay($sclasses, $calls, $group, $course, $weekday) {
+	public function updateDay($classes, $calls, $group, $course, $weekday) {
 		//add group if not exist
-		$this->db->query("INSERT IGNORE INTO groups (name, course) VALUES ('$group[name]', $course)");
+		$this->db->query("INSERT IGNORE INTO groups (name, course) VALUES ('$group', $course)");
 
-		$parsedClasses = [];
-		$query = 'INSERT INTO schedule (group_id,subject_id,weekday,teacher_id,hall,weektype,start,end,comments) VALUES ';
+		$query = 'INSERT INTO students_schedule (group_id, subject, weekday, weektype, start, end) VALUES ';
 
-		foreach ($sclasses as $id => $class) {
+		foreach ($classes as $id => $class) {
 			if (gettype($class) == 'string') {
-				$subClasses = $this->parseClass($class);
-				foreach ($subClasses as $subClass) {
-					$parsedClasses[] = $subClass;
-					$query .= $this->buildValues($subClass, $group['name'], $weekday, 0, $calls[$id]['start'], $calls[$id]['end']);
-				}
+				$query .= "((SELECT id FROM groups WHERE name='$group'),'$class',$weekday,0,{$calls[$id]['start']},{$calls[$id]['end']}),";
 			} else { //separated week type
-				foreach ($class as $typeName => $type) {
-					$subClasses = $this->parseClass($type);
-					foreach ($subClasses as $subClass) {
-						$parsedClasses[] = $subClass;
-						$typeNum = $typeName == 'bottom' ? 1 : 2;
-						$query .= $this->buildValues($subClass, $group['name'], $weekday, $typeNum, $calls[$id]['start'], $calls[$id]['end']);
-					}
+				foreach ($class as $weekTypeName => $type) {
+					$weekTypeNum = $weekTypeName == 'bottom' ? 1 : 2;
+					$query .= "((SELECT id FROM groups WHERE name='$group'),'$class[$weekTypeName]',$weekday,$weekTypeNum,{$calls[$id]['start']},{$calls[$id]['end']}),";
 				}
 			}
 		}
-		$this->addTeachers($parsedClasses);
-		$this->addSubjects($parsedClasses);
 
 		$query = rtrim($query,',') . ';';
 		$res = $this->db->query($query);
 		if ($res === false) {
-			echo '<pre>'; print_r($query); echo '</pre>';
 			throw new Exception('Failed to execute query: ' . $this->db->error);
 		}
+	}
+
+	public function getCoursesCount() {
+		$res = $this->db->query("SELECT course FROM groups GROUP BY course");
+		return $res->num_rows;
 	}
 
 	public function getGroups($course = false) {
@@ -99,18 +92,8 @@ class DBHelper {
 		return $groups;
 	}
 
-	public function getTeachers() {
-		$res = $this->db->query("SELECT surname FROM teachers");
-
-		$teachers = [];
-		while ($row = $res->fetch_row()) {
-			$teachers[] = $row[0];
-		}
-
-		return $teachers;
-	}
-
 	/**
+	 * @param $group integer group_id in database
 	 * returns full schedule when weektype is false
 	 */
 	public function getGroupSchedule($group, $weekday, $weektype) {
@@ -118,13 +101,11 @@ class DBHelper {
 		$weekType = $weektype;
 
 		$res = $this->db->query(
-			"SELECT subject_id,teacher_id,hall,start,end,comments,weektype,surname AS teacher,name AS subject " .
-			"FROM schedule,subjects,teachers " .
+			"SELECT subject,start,end,weektype " .
+			"FROM students_schedule " .
 			"WHERE group_id = (SELECT id FROM groups WHERE name='$group') " .
 				"AND weekday=$weekday " .
 				($weektype ? "AND weektype in (0,$weektype) " : '') .
-				"AND teacher_id=teachers.id " .
-				"AND subject_id=subjects.id " .
 			"ORDER BY start ASC;"
 		);
 		if ($res === false) {
@@ -132,141 +113,17 @@ class DBHelper {
 		}
 
 		$day = [];
-		$lastRow = ['subject_id' => -1, 'start' => -1];
+		$lastStartTime = ['start' => -1];
 
 		while ($row = $res->fetch_assoc()) {
-			if ($lastRow['start'] == $row['start']) {
-				$day[count($day) - 1][$row['weektype']][$row['subject_id']][] = $row;
-			} else {
-				$day[][$row['weektype']][$row['subject_id']][] = $row;
-			}
-			$lastRow = $row;
-		}
-
-		return $day;
-	}
-
-	/**
-	 * returns full schedule when weektype is false
-	 */
-	public function getTeacherSchedule($teacher, $weekday, $weektype) {
-		global $weekType;
-		$weekType = $weektype;
-
-		$res = $this->db->query(
-			"SELECT subject_id,teacher_id,group_id,hall,start,end,comments,weektype,subjects.name AS subject,groups.name AS 'group' " .
-			"FROM schedule,subjects,teachers,groups " .
-			"WHERE teacher_id = (SELECT id FROM teachers WHERE surname='$teacher') " .
-			"AND weekday=$weekday " .
-			($weektype ? "AND weektype in (0,$weektype) " : '') .
-			"AND subject_id=subjects.id " .
-			"AND group_id=groups.id " .
-			"ORDER BY start ASC;"
-		);
-		if ($res === false) {
-			throw new Exception('Failed to execute query: ' . $this->db->error);
-		}
-
-		$day = [];
-		$lastRow = ['subject_id' => -1, 'start' => -1];
-
-		while ($row = $res->fetch_assoc()) {
-			if ($lastRow['start'] == $row['start']) {
+			if ($lastStartTime == $row['start']) {
 				$day[count($day) - 1][$row['weektype']] = $row;
 			} else {
 				$day[][$row['weektype']] = $row;
 			}
-			$lastRow = $row;
+			$lastStartTime = $row['start'];
 		}
 
 		return $day;
-	}
-
-	private function buildValues($class, $group, $weekday, $weektype, $start, $end) {
-		return "((SELECT id FROM groups WHERE name='$group')," .
-			"(SELECT id FROM subjects WHERE name='$class[subject]')," .
-			"$weekday," .
-			(isset($class['teacher']) ? "(SELECT id FROM teachers WHERE surname='$class[teacher]')," : 'NULL,') .
-			(isset($class['hall']) ? "'$class[hall]'," : 'NULL,') .
-			"$weektype," .
-			"$start," .
-			"$end," .
-			(isset($class['comments']) ?  "'$class[comments]')," : 'NULL),');
-	}
-
-	private function parseClass($class) {
-		//TODO: implement comment filling
-		if (!$class) {
-			return [];
-		}
-
-		$subject = '\s{0,3}([\w -]*)\s{0,3}';
-		$surName = '\s{0,3}(\w*)\s{0,3}';
-		$hall = '\s{0,3}(ауд\. \d*.*|СП зал)\s{0,3}';
-		$subGroup = '\s{0,3}(пр.\s{0,3}\d\s{0,3}п\/г)\s{0,3}';
-
-		$lines = explode("\n", $class); //different line - different subject
-		if (count($lines) < 2) {
-			$lines = preg_split('/ {4,}/', $class);
-		}
-
-		foreach ($lines as $line) {
-			$res = preg_match("/^$subject,$surName,$hall(,|$)/Uiu", $line, $matches);
-			if (!$res) {
-				if (strpos($line, 'СРС') !== false) {
-					return [[
-						'subject' => 'СРС'
-					]];
-				} else {
-					break;
-				}
-			}
-			if ($matches[4] == '') {
-				$matches = preg_replace('/\s{2,}/', ' ', $matches);
-				return [[
-					'subject' => $matches[1],
-					'teacher' => $matches[2],
-					'hall' => $matches[3]
-				]];
-			} else {
-				if (preg_match("/^$subject,$surName,$hall,$surName,$hall$/Uiu", $line, $matches)) {
-					$matches = preg_replace('/\s{2,}/', ' ', $matches);
-					return [
-						['subject' => $matches[1], 'teacher' => $matches[2], 'hall' => $matches[3]],
-						['subject' => $matches[1], 'teacher' => $matches[4], 'hall' => $matches[5]]
-					];
-				}
-				if (preg_match("/^$subject,$surName,$hall,$subGroup$/Uiu", $line, $matches)) {
-					$matches = preg_replace('/\s{2,}/', ' ', $matches);
-					return [[
-						'subject' => $matches[1],
-						'teacher' => $matches[2],
-						'hall' => $matches[3],
-						'comments' => $matches[4]
-					]];
-				}
-			}
-		}
-
-		throw new Exception('Unknown class format: ' . print_r($class, true));
-	}
-
-	private function addTeachers($classes) {
-		$teachers = [];
-		foreach ($classes as $class) {
-			if (!isset($class['teacher'])) continue;
-			$teachers[] = '(\'' . $class['teacher'] . '\')';
-		}
-
-		$this->db->query('INSERT IGNORE INTO teachers (surname) VALUES ' . implode(',', $teachers));
-	}
-
-	private function addSubjects($classes) {
-		$subjects = [];
-		foreach ($classes as $class) {
-			$subjects[] = '(\'' . $class['subject'] . '\')';
-		}
-
-		$this->db->query('INSERT IGNORE INTO subjects (name) VALUES ' . implode(',', $subjects));
 	}
 }
