@@ -56,6 +56,13 @@ button.bugreport {
 	bottom: 10px !important;
 	z-index: 9999;
 }
+button.bugreport.visible {
+	background: #FFF !important;
+	color: rgba(0, 0, 0, .8) !important;
+}
+button.bugreport.notop {
+	z-index: 99;
+}
 .popup.bugreport {
 	position: fixed !important;
 	z-index: 9999;
@@ -72,9 +79,6 @@ button.bugreport {
 }
 .ui.table:last-child {
 	margin-bottom: 20px;
-}
-button.bugreport.notop {
-	z-index: 99;
 }
 .ui.segment.error {
 	background-color: #FFE8E6;
@@ -100,4 +104,15 @@ button.bugreport.notop {
 	font-style: normal;
 	text-align: center;
 	text-decoration: none;
+}
+.genteration-info {
+	display: none;
+	margin-left: 10px;
+	margin-bottom: 15px;
+	z-index: 9999;
+}
+.genteration-info p {
+	margin: 0;
+	line-height: 1.1em;
+	font-size: 80%
 }

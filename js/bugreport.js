@@ -4,12 +4,25 @@ function setReportMode(active) {
 		$('table').addClass('bugreport');
 		$('*').css('cursor', 'pointer');
 		$('button.bugreport').addClass('inverted');
+		$('.genteration-info').show();
+
+		$('table').click(function (event) {
+			$(event.target).addClass('report-target');
+			html2canvas($('.ui.grid')[0], {
+				onrendered: function (canvas) {
+					$(event.target).removeClass('report-target');
+					report(event, canvas.toDataURL("image/jpeg"))
+				}
+			});
+		});
 	} else {
 		$('table').removeClass('bugreport');
 		$('.bugreport.dimmer').dimmer('hide');
 		$('*').css('cursor', '');
 		$('button.bugreport').removeClass('inverted');
 		$('table').off('click');
+		$('.genteration-info').hide();
+		$('button.bugreport').popup('hide');
 	}
 }
 
@@ -77,16 +90,10 @@ $('button.bugreport').popup({
 $('button.bugreport').click(function () {
 	if ($('button.bugreport').popup('is hidden')) {
 		setReportMode(true);
-		$('table').click(function (event) {
-			$(event.target).addClass('report-target');
-			html2canvas($('.ui.grid')[0], {
-				onrendered: function (canvas) {
-					$(event.target).removeClass('report-target');
-					report(event, canvas.toDataURL("image/jpeg"))
-				}
-			});
-		});
 	} else {
 		setReportMode(false);
 	}
+});
+$('div.ui.bugreport.dimmer').click(function () {
+	setReportMode(false);
 });

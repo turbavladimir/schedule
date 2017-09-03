@@ -1,5 +1,5 @@
 var days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-var months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь',	'Ноябрь','Декабрь']
+var months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь',	'Ноябрь','Декабрь'];
 var clock = $('#clock');
 
 function updateClock() {
@@ -140,6 +140,14 @@ function loadSchedule(key) {
 				$('#weekType').html('нижняя');
 			} else {
 				$('#weekType').html('верхняя');
+			}
+
+			$('#check-time span').html(response.updated.check);
+			$('#update-time span').html(response.updated.update);
+			if (response.updated.error) {
+				$('#update-error span').html('да');
+			} else {
+				$('#update-error span').html('нет');
 			}
 
 			//TODO: implement important errors handling

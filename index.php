@@ -70,6 +70,11 @@ $db = DBHelper::get();
 		<div id="container" class="sixteen wide column"></div>
 	</div>
 </div>
+<div class="genteration-info">
+	<p id="check-time">Последняя проверка: <span></span></p>
+	<p id="update-time">Последнее обновление: <span></span></p>
+	<p id="update-error">Ошибка при обновлении: <span></span></p>
+</div>
 <button class="bugreport circular ui large icon button">
 	<i class="icon large warning circle"></i>
 </button>
