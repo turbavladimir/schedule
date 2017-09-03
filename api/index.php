@@ -11,12 +11,7 @@ if (!@include'../settings/app.php') {
 }
 
 require_once '../php/DBHelper.php';
-
-function cacheTime() {
-	global $cacheDir;
-	$fileName = glob("$cacheDir/xls/*" . intval($_REQUEST['group']) . "*.ts")[0];
-	return file_get_contents($fileName);
-}
+require_once '../php/Utils.php';
 
 function formatMinutesOfDay($minutes) {
 	$hours = intval($minutes / 60);
@@ -47,11 +42,7 @@ function getDay($weekday, $weekTypeNum = false) {
 }
 
 //in DB: 0 - any, 1 - low, 2 - high
-$weekTypeNum = date('W') % 2 + 1;
-if ($invertWeekType) {
-	if ($weekTypeNum == 1) $weekTypeNum = 2;
-	if ($weekTypeNum == 2) $weekTypeNum = 1;
-}
+$weekTypeNum = Utils::getWeekTypeNum($invertWeekType);
 $json['lowWeek'] = $weekTypeNum == 1;
 
 if (isset($_REQUEST['short'])) {
@@ -70,7 +61,7 @@ if (isset($_REQUEST['short'])) {
 }
 
 $json['days'] = array_filter($json['days']);
-$json['updated']['update'] = date('Y-m-d H:i:s', cacheTime());
+$json['updated']['update'] = date('Y-m-d H:i:s', Utils::cacheTime($_REQUEST['group'], $cacheDir));
 
 if (is_file("$cacheDir/lastgen")) {
 	$lastGen = unserialize(file_get_contents("$cacheDir/lastgen"));
