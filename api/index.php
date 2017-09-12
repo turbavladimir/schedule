@@ -13,12 +13,6 @@ if (!@include'../settings/app.php') {
 require_once '../php/DBHelper.php';
 require_once '../php/Utils.php';
 
-function formatMinutesOfDay($minutes) {
-	$hours = intval($minutes / 60);
-	$minutes = $minutes % 60;
-	return "$hours:" . sprintf("%02d", $minutes);
-}
-
 function getDay($weekday, $weekTypeNum = false) {
 	$db = DBHelper::get();
 	$rawDay = $db->getGroupSchedule($db->escape($_REQUEST['group']), $weekday, $weekTypeNum);
@@ -35,7 +29,7 @@ function getDay($weekday, $weekTypeNum = false) {
 			}
 		}
 		$day['schedule'][] = $class;
-		$day['time'][] = formatMinutesOfDay($item['start']) . '-' . formatMinutesOfDay($item['end']);
+		$day['time'][] = Utils::formatMinutesOfDay($item['start']) . '-' . Utils::formatMinutesOfDay($item['end']);
 	}
 
 	return $day;
@@ -43,16 +37,16 @@ function getDay($weekday, $weekTypeNum = false) {
 
 //in DB: 0 - any, 1 - low, 2 - high
 $weekTypeNum = Utils::getWeekTypeNum($invertWeekType);
-$json['lowWeek'] = $weekTypeNum == 1;
 
 if (isset($_REQUEST['short'])) {
-	//convert to 'weekday from monday'
-	$weekday = date('w') - 1;
-	if ($weekday == -1) $weekday = 6;
-	$nextDay = $weekday + 1;
-	if ($nextDay == 7) $nextDay = 0;
+	$weekdayFromSun = date('w');
+	$weekday = Utils::weekDayFromMon($weekdayFromSun);
+	$nextDay = Utils::weekDayFromMon($weekdayFromSun, true);
 
 	$json['days'][$weekday] = getDay($weekday, $weekTypeNum);
+	if ($nextDay = 0) {
+		$weekTypeNum = Utils::getWeekTypeNum(!$invertWeekType);
+	}
 	$json['days'][$nextDay] = getDay($nextDay, $weekTypeNum);
 } else {
 	for ($weekday = 0; $weekday < 6; $weekday++) {
@@ -60,6 +54,8 @@ if (isset($_REQUEST['short'])) {
 	}
 }
 
+
+$json['lowWeek'] = $weekTypeNum == 1;
 $json['days'] = array_filter($json['days']);
 $json['updated']['update'] = date('Y-m-d H:i:s', Utils::cacheTime($_REQUEST['group'], $cacheDir));
 

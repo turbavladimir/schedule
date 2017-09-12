@@ -96,7 +96,7 @@ class DBHelper {
 	 * @param $group integer group_id in database
 	 * returns full schedule when weektype is false
 	 */
-	public function getGroupSchedule($group, $weekday, $weektype) {
+	public function getGroupSchedule($group, $weekday, $weektype, $replaceEmptinesNbsp = false) {
 		global $weekType;
 		$weekType = $weektype;
 
@@ -116,6 +116,9 @@ class DBHelper {
 		$lastStartTime = ['start' => -1];
 
 		while ($row = $res->fetch_assoc()) {
+			if ($replaceEmptinesNbsp && !$row['subject']) {
+				$row['subject'] = "&nbsp;";
+			}
 			if ($lastStartTime == $row['start']) {
 				$day[count($day) - 1][$row['weektype']] = $row;
 			} else {

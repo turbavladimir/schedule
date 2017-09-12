@@ -51,9 +51,9 @@ $db = DBHelper::get();
 		</div>
 		<div class="eight wide column">
 			<select id="courses" class="ui dropdown courses fluid">
-				<?for ($i = 0; $i < $db->getCoursesCount(); $i++):?>
+				<?php for ($i = 0; $i < $db->getCoursesCount(); $i++):?>
 					<option value="<?=$i?>"><?=$i + 1?> курс</option>
-				<?endfor?>
+				<?php endfor?>
 			</select>
 		</div>
 		<div class="eight wide column">

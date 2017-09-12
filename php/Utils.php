@@ -1,6 +1,25 @@
 <?php
 
 class Utils {
+	static public function weekDayFromMon($weekday, $nextDay = false) {
+		$weekday -= 1;
+		if ($weekday == -1) {
+			$weekday = 6;
+		}
+		if ($nextDay) {
+			$weekday += 1;
+		}
+		if ($weekday == 7) $weekday = 0;
+
+		return $weekday;
+	}
+
+	static public function formatMinutesOfDay($minutes) {
+		$hours = intval($minutes / 60);
+		$minutes = $minutes % 60;
+		return "$hours:" . sprintf("%02d", $minutes);
+	}
+
 	static public function getWeekTypeNum($invert = false, $weekNum = false) {
 		if ($weekNum === false) {
 			$weekNum = date('W');

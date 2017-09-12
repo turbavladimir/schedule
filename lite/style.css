@@ -1,0 +1,37 @@
+table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+td.mergedTop {
+	border-bottom: 1px dotted black;
+}
+td.mergedBottom {
+	border-top: 1px dotted black;
+}
+th {
+	font-weight: bold;
+	padding: 5px;
+	max-width: 1em;
+	vertical-align: bottom;
+}
+td {
+	padding: 5px;
+}
+.time {
+	margin: 0 auto;
+	text-align: center;
+}
+select {
+	margin-left: 10px;
+}
+form {
+	margin-bottom: 10px;
+	text-align: center;
+}
+table {
+	margin-top: 5px;
+}
+p.weektype {
+	text-align: center;
+	margin: 0;
+}

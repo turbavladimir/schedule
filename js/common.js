@@ -191,7 +191,7 @@ $('#type .button[data-target=' + defaultType + ']').addClass('active');
 
 defaultCourse = $.cookie('course');
 if (!defaultCourse) {
-	defaultCourse = 1;
+	defaultCourse = 0;
 }
 $('.dropdown.courses').dropdown('set selected', defaultCourse);
 
