@@ -21,15 +21,21 @@ td {
 	margin: 0 auto;
 	text-align: center;
 }
+td.time {
+	width: 1%;
+	white-space: nowrap;
+}
 select {
-	margin-left: 10px;
+	margin: 0 5px;
 }
 form {
 	margin-bottom: 10px;
 	text-align: center;
 }
 table {
-	margin-top: 5px;
+	margin: 5px auto;
+	min-width: 50vw;
+	width: 320px;
 }
 p.weektype {
 	text-align: center;

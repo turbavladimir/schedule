@@ -64,6 +64,7 @@ if ($selectedType == 'short') {
 		$days[$weekday] = $db->getGroupSchedule($selectedGroup, $weekday, 0, true);
 	}
 }
+ksort($days);
 ?>
 <!DOCTYPE html>
 <html lang="ru">
