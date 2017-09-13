@@ -212,4 +212,10 @@ class Parser {
 		restore_error_handler();
 		return $out;
 	}
+
+	public function getCellRange($startCol, $startRow, $endCol, $endRow) {
+		$startCell = PHPExcel_Cell::stringFromColumnIndex($startCol) . $startRow;
+		$endCell = PHPExcel_Cell::stringFromColumnIndex($endCol) . $endRow;
+		return $this->sheet->rangeToArray("$startCell:$endCell");
+	}
 }
