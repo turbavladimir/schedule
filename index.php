@@ -11,7 +11,7 @@ $db = DBHelper::get();
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Расписание стдентов ПТК НовГУ</title>
+	<title>Расписание студентов ПТК НовГУ</title>
 	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="icons/apple-touch-icon-144x144.png" />
 	<link rel="apple-touch-icon-precomposed" sizes="152x152" href="icons/apple-touch-icon-152x152.png" />
 	<link rel="icon" type="image/png" href="icons/favicon-196x196.png" sizes="196x196" />
