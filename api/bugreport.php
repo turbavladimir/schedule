@@ -8,31 +8,6 @@ if (!isset($_REQUEST['group']) || !$_REQUEST['group']) {
 	echo json_encode(['success' => false, 'error' => 'group not specified']);
 }
 
-$fileName = glob("$cacheDir/xls/*" . intval($_REQUEST['group']) . "*.xls");
-if (isset($fileName[0])) {
-	require_once '../parser/Parser.php';
-	$parser = new Parser($cacheDir);
-	$parser->loadSheet(basename($fileName[0]));
-	try {
-		$groupsRow = $parser->findGroupsRow();
-	} catch (Exception $e) {
-
-	}
-	if (isset($groupsRow)) {
-		$ranges = $parser->getWeekDayRanges($groupsRow + 1);
-		$groups = $parser->getGroupList($groupsRow);
-
-		foreach ($groups as $group) {
-			if ($group['name'] == $_REQUEST['group']) {
-				$schedule = [];
-				foreach ($ranges as $range) {
-					$schedule[] = $parser->getCellRange($group['col'], $range['start'], $group['col'], $range['end']);
-				}
-			}
-		}
-	}
-}
-
 require_once '../php/tg-api/BaseType.php';
 require_once '../php/tg-api/TypeInterface.php';
 foreach (glob('../php/tg-api/Types/*.php') as $filename) {
@@ -56,14 +31,9 @@ try {
 	$bot = new \TelegramBot\Api\BotApi($tgReporterBotToken);
 	$photo = new \CURLFile(stream_get_meta_data($temp)['uri'], $imageMime[1]);
 	$bot->sendPhoto($tgChatId, $photo, $message);
-	if (isset($schedule)) {
-		$days = [];
-		foreach ($schedule as $day) {
-			$day = call_user_func_array('array_merge', $day);
-			$days[] = implode("\n", $day);
-		}
-		$bot->sendMessage($tgChatId, implode("\n---------------\n", $days), null, false, null, null, true);
 
+	$fileName = glob("$cacheDir/xls/*" . intval($_REQUEST['group']) . "*.xls");
+	if (isset($fileName[0])) {
 		$xls = new \CURLFile($fileName[0]);
 		$bot->sendDocument($tgChatId, $xls, null, null, null, true);
 	}
