@@ -55,7 +55,7 @@ if ($selectedType == 'short') {
 	$nextDay = Utils::weekDayFromMon($weekdayFromSun, true);
 
 	$days[$weekday] = $db->getGroupSchedule($selectedGroup, $weekday, $weekTypeNum, true);
-	if ($nextDay = 0) {
+	if ($nextDay == 0) {
 		$weekTypeNum = Utils::getWeekTypeNum(!$invertWeekType);
 	}
 	$days[$nextDay] = $db->getGroupSchedule($selectedGroup, $nextDay, $weekTypeNum, true);
@@ -64,7 +64,6 @@ if ($selectedType == 'short') {
 		$days[$weekday] = $db->getGroupSchedule($selectedGroup, $weekday, 0, true);
 	}
 }
-ksort($days);
 ?>
 <!DOCTYPE html>
 <html lang="ru">

@@ -44,7 +44,7 @@ if (isset($_REQUEST['short'])) {
 	$nextDay = Utils::weekDayFromMon($weekdayFromSun, true);
 
 	$json['days'][$weekday] = getDay($weekday, $weekTypeNum);
-	if ($nextDay = 0) {
+	if ($nextDay == 0) {
 		$weekTypeNum = Utils::getWeekTypeNum(!$invertWeekType);
 	}
 	$json['days'][$nextDay] = getDay($nextDay, $weekTypeNum);
