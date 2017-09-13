@@ -30,13 +30,15 @@ $message = "IP: $ip\nUser Agent: $_SERVER[HTTP_USER_AGENT]\n$url$timeTable";
 try {
 	$bot = new \TelegramBot\Api\BotApi($tgReporterBotToken);
 	$photo = new \CURLFile(stream_get_meta_data($temp)['uri'], $imageMime[1]);
-	$bot->sendPhoto($tgChatId, $photo, $message);
+	$bot->sendPhoto($tgChatId, $photo);
 
 	$fileName = glob("$cacheDir/xls/*" . intval($_REQUEST['group']) . "*.xls");
 	if (isset($fileName[0])) {
 		$xls = new \CURLFile($fileName[0]);
 		$bot->sendDocument($tgChatId, $xls, null, null, null, true);
 	}
+
+	$bot->sendMessage($tgChatId, $message, null, null, null, null, true);
 } catch (Exception $e) {
 	echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 	exit();
