@@ -90,11 +90,14 @@ if ($selectedType == 'short') {
 			<option value="<?=$group?>" <?=$selectedGroup == $group ? 'selected' : ''?>><?=$group?></option>
 		<?php endforeach;?>
 	</select>
+	<noscript>
+		<input type="submit" value="Сохранить">
+	</noscript>
 </form>
 <p class="weektype"><?=$weekTypeNum == 1 ? 'Нижняя' : 'Верхняя'?> неделя</p>
 <?php foreach ($days as $weekdayNum => $day):
 	if (!$day) continue;?>
-	<table>
+	<table border="1">
 		<thead>
 		<tr><th colspan="2"><?=$weekdayNames[$weekdayNum]?></th></tr>
 		</thead>
