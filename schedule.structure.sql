@@ -19,13 +19,13 @@ create table students_schedule
   start int(4) not null comment 'in minutes of day',
   end int(4) not null comment 'in minutes of day',
   subject varchar(1000) null,
-  constraint group
+  constraint group_id
   foreign key (group_id) references groups (id)
     on update cascade on delete cascade
 )
 ;
 
-create index `group`
+create index group_id
   on students_schedule (group_id)
 ;
 
