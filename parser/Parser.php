@@ -150,7 +150,10 @@ class Parser {
 			array_walk_recursive($output, [$this, 'replaceEmptinesAliases']);
 		}
 
-		return array_filter($output);//TODO: ensure that it's not gonna remove middle-day classes, implements insert of empty classes
+		while (!end($output) && $output) {//trim empty array elements from the end of day
+			array_pop($output);
+		}
+		return $output;
 	}
 
 	private function isMerged($col, $row) {
