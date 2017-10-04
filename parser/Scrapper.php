@@ -39,7 +39,15 @@ class Scrapper {
 		return $data;
 	}
 
-	public function updateFiles($files) {
+	private function copyXls($file, $tsFile, $xlsFolder) {
+		copy($this->rootUrl . $file->path, $xlsFolder . basename($file->path));
+		file_put_contents($tsFile, $file->timestamp);
+
+		$file->path = $xlsFolder . basename($file->path);
+		return $file;
+	}
+
+	public function updateFiles($files, $force = '') {
 		$xlsFolder = $this->cacheFolder . '/xls/';
 
 		$updatedFiles = [];
@@ -48,18 +56,16 @@ class Scrapper {
 			/**@var $file File*/
 			$tsFile =  $xlsFolder. basename($file->path, '.xls') . '.ts';
 
-			if (file_exists($tsFile)) { //check timestamp of xls file
+			if (strpos($file->path, $force) !== false) { //is forced to update
+				$updatedFiles[] = $this->copyXls($file, $tsFile, $xlsFolder);
+			} elseif (file_exists($tsFile)) { //check timestamp of xls file
 				$ts = file_get_contents($tsFile); //read timestamp of cache xls file
 
 				if ($ts < $file->timestamp) { //download new file
-					copy($this->rootUrl . $file->path, $xlsFolder . basename($file->path));
-					file_put_contents($tsFile, $file->timestamp);
-					$updatedFiles[] = $file;
+					$updatedFiles[] = $this->copyXls($file, $tsFile, $xlsFolder);
 				}
 			} else { //download new file
-				copy($this->rootUrl . $file->path, $xlsFolder . basename($file->path));
-				file_put_contents($tsFile, $file->timestamp);
-				$updatedFiles[] = $file;
+				$updatedFiles[] = $this->copyXls($file, $tsFile, $xlsFolder);
 			}
 		}
 

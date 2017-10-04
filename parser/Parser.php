@@ -6,10 +6,8 @@ require_once 'PHPExcel/IOFactory.php';
 class Parser {
 	/**@var $sheet PHPExcel_Worksheet*/
 	private $sheet;
-	private $cacheFolder;
 
-	function __construct($cacheFolder) {
-		$this->cacheFolder = $cacheFolder;
+	function __construct() {
 	}
 
 	public function getGroupCourse($groups, $groupId) {
@@ -23,7 +21,7 @@ class Parser {
 	}
 
 	public function loadSheet($path) {
-		$xls = PHPExcel_IOFactory::load($this->cacheFolder . "/xls/$path");
+		$xls = PHPExcel_IOFactory::load($path);
 		$this->sheet = $xls->getActiveSheet();
 	}
 
@@ -52,11 +50,21 @@ class Parser {
 	}
 
 	public function getWeekDayRanges($startRow) {
-		$lastWeekDay = $this->sheet->getCellByColumnAndRow(0, $startRow)->getValue();
+		//find first visible column
+		$highestColumn = PHPExcel_Cell::columnIndexFromString($this->sheet->getHighestColumn());
+		$firstCol = 0;
+		for ($i = 0; $i < $highestColumn; $i++) {
+			if ($this->sheet->getColumnDimension(PHPExcel_Cell::stringFromColumnIndex($i))->getVisible()) {
+				$firstCol = $i;
+				break;
+			}
+		}
+
+		$lastWeekDay = $this->sheet->getCellByColumnAndRow($firstCol, $startRow)->getValue();
 		$lastRow = $startRow;
 		$ranges = [];
 		for ($i = $startRow; $i < $this->sheet->getHighestRow(); $i++) {
-			$currentValue = $this->getCellValue(0, $i);
+			$currentValue = $this->getCellValue($firstCol, $i);
 			if ($currentValue != $lastWeekDay) {
 				if ($i - $lastRow - 1 <= 0) {
 					$lastWeekDay = $currentValue;

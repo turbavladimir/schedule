@@ -6,7 +6,7 @@ $lastGen['start'] = time();
 $lastGen['error'] = false;
 
 //load app settings
-$debug = false; // in debug mode it processes all files on every run
+$debug = false;
 if (! @include'../settings/app.php') {
 	require_once '../settings/app.default.php';
 	$debug = true;
@@ -28,12 +28,12 @@ $updatedFiles = $scrapper->updateFiles($tableData->getFiles());
 require_once '../php/DBHelper.php';
 DBHelper::get()->mergeGroups($tableData->getGroups());
 
-if ($updatedFiles || $debug) {
+if ($updatedFiles) {
 	require_once 'Parser.php';
 	$parser = new Parser($cacheDir);
 
 	$groups = $tableData->getGroups();
-	foreach ($tableData->getFileNames() as $file) {
+	foreach ($updatedFiles as $file) {
 		$parser->loadSheet($file->path);
 
 		try {
