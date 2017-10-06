@@ -113,7 +113,7 @@ if ($selectedType == 'short') {
 					<td><?=$item['subject']?></td>
 				</tr>
 			<?php elseif ($selectedType == 'full'):?>
-				<?
+				<?php
 				$isMerged = count($class) > 1;
 				$firstItem = $isMerged ? (isset($class[2]) ? $class[2] : false) : $class[0];
 				$secondItem = isset($class[1]) ? $class[1] : false?>
