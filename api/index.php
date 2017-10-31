@@ -55,7 +55,7 @@ if (isset($_REQUEST['short'])) {
 }
 
 
-$json['lowWeek'] = $weekTypeNum == 1;
+$json['lowWeek'] = Utils::getWeekTypeNum($invertWeekType) == 1;
 $json['days'] = array_filter($json['days']);
 $json['updated']['update'] = date('Y-m-d H:i:s', Utils::cacheTime($_REQUEST['group'], $cacheDir));
 

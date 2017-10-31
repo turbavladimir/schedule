@@ -23,7 +23,7 @@ require_once 'Scrapper.php';
 
 $scrapper = new Scrapper($url, $timeTable, $cacheDir);
 $tableData = $scrapper->fetchTableData();
-$updatedFiles = $scrapper->updateFiles($tableData->getFiles());
+$updatedFiles = $scrapper->updateFiles($tableData->getFiles(), $debug);
 
 require_once '../php/DBHelper.php';
 DBHelper::get()->mergeGroups($tableData->getGroups());
