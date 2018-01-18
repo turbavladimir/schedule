@@ -24,7 +24,7 @@ $classes = [];
 for ($weekNum = date('W'); $weekNum <= date('W') + 1; $weekNum++) {
 	$weekTypeNum = Utils::getWeekTypeNum($invertWeekType, $weekNum);
 	foreach ($days as $weekday => $day) {
-		$datetime->setISODate(date('Y'), $weekNum, $weekday + 1);//NOTE: check weekday first working day
+		$datetime->setISODate(date('Y'), $weekNum, $weekday + 1);
 		$datetime->setTime(0, 0);
 		$dayStartTimestamp = $datetime->getTimestamp();
 

@@ -64,6 +64,10 @@ class Parser {
 		$lastRow = $startRow;
 		$ranges = [];
 		for ($i = $startRow; $i < $this->sheet->getHighestRow(); $i++) {
+			if (!$this->sheet->getRowDimension($i)->getVisible()) {
+				continue;
+			}
+
 			$currentValue = $this->getCellValue($firstCol, $i);
 			if ($currentValue != $lastWeekDay) {
 				if ($i - $lastRow - 1 <= 0) {
@@ -93,9 +97,9 @@ class Parser {
 	public function getCallsSchedule($timeCol, $startRow, $endRow) {
 		$output = [];
 		for ($i = $startRow; $i <= $endRow; $i++) {
-			if ($this->getCellValue($timeCol, $i) == NULL) {
-				continue;
-			}
+//			if ($this->getCellValue($timeCol, $i) == NULL) {//TODO: remove later if everything works
+//				continue;
+//			}
 			if ($this->isMerged($timeCol, $i) !== false) {
 				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
 				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
@@ -114,8 +118,8 @@ class Parser {
 			$topItem = $this->getCellValue($itemCol, $i);
 			if ($this->isMerged($timeCol, $i) !== false) {
 				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
-				$itemBorders = $this->getBorderRowsOfMergedCell($itemCol, $i);
 				if ($this->isMerged($itemCol, $i) !== false) {
+					$itemBorders = $this->getBorderRowsOfMergedCell($itemCol, $i);
 					if ($topItem == NULL) {
 						$output[] = $topItem;
 						$i += $timeBorders[1] - $timeBorders[0];
@@ -133,7 +137,7 @@ class Parser {
 							'top' => $topItem,
 							'bottom' => $this->getCellValue($itemCol, $i + $offset)
 						];
-						$i += $timeBorders[1] - $timeBorders[0]; //NOTE: fixed here, check everything
+						$i += $timeBorders[1] - $timeBorders[0];
 					}
 				} else {
 					$lowWeekOffset = 1;
@@ -154,9 +158,9 @@ class Parser {
 			} else {
 				$output[] = $topItem;
 			}
-
-			array_walk_recursive($output, [$this, 'replaceEmptinesAliases']);
 		}
+
+		array_walk_recursive($output, [$this, 'replaceEmptinesAliases']);
 
 		while (!end($output) && $output) {//trim empty array elements from the end of day
 			array_pop($output);
@@ -191,7 +195,17 @@ class Parser {
 		foreach ($this->sheet->getMergeCells() as $cells) {
 			if ($cell->isInRange($cells)) {
 				preg_match("/[A-Z](\d*):[A-Z](\d*)/" , $cells, $match);
-				return [$match[1], $match[2]];
+				$visibleRows = [];
+				for ($i = $match[1]; $i <= $match[2]; $i++) {
+					if ($this->sheet->getRowDimension($i)->getVisible()) {
+						$visibleRows[] = $i;
+					}
+				}
+				if ($visibleRows) {
+					return [$visibleRows[0], end($visibleRows)];
+				} else {
+					return [-1];
+				}
 			}
 		}
 
@@ -207,6 +221,10 @@ class Parser {
 	}
 
 	private function timeCellToArray($data) {
+		if (!$data) {
+			return ['start' => 0, 'end' => 0];
+		}
+
 		$out = [];
 		set_error_handler(function () use ($data, $out) {
 			echo '<pre>'; echo "Notice when parsing time cell: $data"; echo '</pre>';
