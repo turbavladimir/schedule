@@ -17,7 +17,7 @@ class Parser {
 			}
 		}
 
-		throw new Exception('Failed to find group by id');
+		throw new Exception('unable to find group by id');
 	}
 
 	public function loadSheet($path) {
@@ -32,7 +32,7 @@ class Parser {
 			}
 		}
 
-		throw new Exception('Failed to find row with group numbers');
+		throw new Exception('unable to find row with group numbers');
 	}
 
 	public function getGroupList($row) {
@@ -61,23 +61,20 @@ class Parser {
 		}
 
 		$lastWeekDay = $this->sheet->getCellByColumnAndRow($firstCol, $startRow)->getValue();
-		$lastRow = $startRow;
 		$ranges = [];
+		$visibleRows = [];
 		for ($i = $startRow; $i < $this->sheet->getHighestRow(); $i++) {
-			if (!$this->sheet->getRowDimension($i)->getVisible()) {
-				continue;
-			}
-
 			$currentValue = $this->getCellValue($firstCol, $i);
 			if ($currentValue != $lastWeekDay) {
-				if ($i - $lastRow - 1 <= 0) {
+				if ($visibleRows) {
+					$ranges[] = ['start' => $visibleRows[0], 'end' => end($visibleRows),  'name' => $lastWeekDay];
 					$lastWeekDay = $currentValue;
-					$lastRow = $i;
-					continue;
 				}
-				$ranges[] = ['start' => $lastRow, 'end' => $i - 1,  'name' => $lastWeekDay];
-				$lastWeekDay = $currentValue;
-				$lastRow = $i;
+				$visibleRows = [];
+			}
+
+			if ($this->isRowVisible($i)) {
+				$visibleRows[] = $i;
 			}
 		}
 
@@ -91,7 +88,7 @@ class Parser {
 			}
 		}
 
-		throw new Exception('Failed to find time column');
+		throw new Exception('unable to find time column');
 	}
 
 	public function getCallsSchedule($timeCol, $startRow, $endRow) {
@@ -103,6 +100,9 @@ class Parser {
 			if ($this->isMerged($timeCol, $i) !== false) {
 				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
 				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
+				if (!$timeBorders) {
+					throw new Exception('unable to find time borders of ' . (count($output) + 1) . ' class');
+				}
 				$i += $timeBorders[1] - $timeBorders[0];
 			} else {
 				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
@@ -118,8 +118,14 @@ class Parser {
 			$topItem = $this->getCellValue($itemCol, $i);
 			if ($this->isMerged($timeCol, $i) !== false) {
 				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
+				if (!$timeBorders) {
+					throw new Exception('unable to find time borders of ' . (count($output) + 1) . ' class');
+				}
 				if ($this->isMerged($itemCol, $i) !== false) {
 					$itemBorders = $this->getBorderRowsOfMergedCell($itemCol, $i);
+					if (!$itemBorders) {
+						throw new Exception('unable to find item borders of ' . (count($output) + 1) . ' class');
+					}
 					if ($topItem == NULL) {
 						$output[] = $topItem;
 						$i += $timeBorders[1] - $timeBorders[0];
@@ -197,19 +203,19 @@ class Parser {
 				preg_match("/[A-Z](\d*):[A-Z](\d*)/" , $cells, $match);
 				$visibleRows = [];
 				for ($i = $match[1]; $i <= $match[2]; $i++) {
-					if ($this->sheet->getRowDimension($i)->getVisible()) {
+					if ($this->isRowVisible($i)) {
 						$visibleRows[] = $i;
 					}
 				}
 				if ($visibleRows) {
 					return [$visibleRows[0], end($visibleRows)];
 				} else {
-					return [-1];
+					return false;
 				}
 			}
 		}
 
-		return [-1];
+		return false;
 	}
 
 	private function replaceEmptinesAliases(&$item, $key) {
@@ -240,6 +246,16 @@ class Parser {
 		$out =  ['start' => $start[0] * 60 + $start[1], 'end' => $end[0] * 60 + $end[1]];
 		restore_error_handler();
 		return $out;
+	}
+
+	private function isRowVisible($row) {
+		$dimensions = $this->sheet->getRowDimension($row);
+
+		if ($dimensions->getVisible() && $dimensions->getRowHeight() > 5) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public function getCellRange($startCol, $startRow, $endCol, $endRow) {

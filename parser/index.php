@@ -6,8 +6,10 @@ $lastGen['start'] = time();
 $lastGen['error'] = false;
 
 //load app settings
+$debug_group = '';
 if (! @include'../settings/app.php') {
 	require_once '../settings/app.default.php';
+	$debug_group = '7941'; //use dot to force cache update for all groups
 }
 
 //create cache folders if they do not exist
@@ -21,7 +23,7 @@ require_once 'Scrapper.php';
 
 $scrapper = new Scrapper($url, $timeTable, $cacheDir);
 $tableData = $scrapper->fetchTableData();
-$updatedFiles = $scrapper->updateFiles($tableData->getFiles(), '4901');
+$updatedFiles = $scrapper->updateFiles($tableData->getFiles(), $debug_group);
 
 require_once '../php/DBHelper.php';
 DBHelper::get()->mergeGroups($tableData->getGroups());
