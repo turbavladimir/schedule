@@ -9,7 +9,7 @@ $lastGen['error'] = false;
 $debug_group = '';
 if (! @include'../settings/app.php') {
 	require_once '../settings/app.default.php';
-	$debug_group = '7941'; //use dot to force cache update for all groups
+	$debug_group = '.'; //use dot to force cache update for all groups
 }
 
 //create cache folders if they do not exist
@@ -34,18 +34,29 @@ if ($updatedFiles) {
 
 	$groups = $tableData->getGroups();
 	foreach ($updatedFiles as $file) {
+		if ($debug_group && $debug_group != '.' && strpos($file->path, $debug_group) !== false) {
+			echo 'File debug ready' . PHP_EOL;
+		}
+
 		$parser->loadSheet($file->path);
 
 		try {
 			$groupsRow = $parser->findGroupsRow();
 		} catch (Exception $e) {
-			echo "<pre>{$e->getMessage()} in {$file->path}</pre>";
+			echo "{$e->getMessage()} in {$file->path}" . PHP_EOL;
 			continue;
 		}
 		$groupList = $parser->getGroupList($groupsRow);
 
 		$weekDayRanges = $parser->getWeekDayRanges($groupsRow + 1);
 		foreach ($groupList as $group) {
+			if ($group['name'] == $debug_group) {
+				echo 'Group debug ready' . PHP_EOL;
+			}
+			if ($debug_group) {
+				echo "Processing group: $group[name]" . PHP_EOL;
+			}
+
 			DBHelper::get()->clearGroupSchedule($group['name']);
 
 			if (!isset($groups[intval($group['name'])])) continue;

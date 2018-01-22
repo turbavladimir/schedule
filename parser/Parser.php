@@ -40,6 +40,9 @@ class Parser {
 
 		$maxColumn = PHPExcel_Cell::columnIndexFromString($this->sheet->getHighestColumn());
 		for ($i = 0; $i < $maxColumn; $i++) {
+			if (!$this->isColVisible($i)) {
+				continue;
+			}
 			$value = $this->sheet->getCellByColumnAndRow($i, $row)->getValue();
 			if (!in_array($value, $groups) && str_replace(' ', '', $value)) {
 				$groups[] = ['col' => $i, 'name' => $value];
@@ -54,7 +57,7 @@ class Parser {
 		$highestColumn = PHPExcel_Cell::columnIndexFromString($this->sheet->getHighestColumn());
 		$firstCol = 0;
 		for ($i = 0; $i < $highestColumn; $i++) {
-			if ($this->sheet->getColumnDimension(PHPExcel_Cell::stringFromColumnIndex($i))->getVisible()) {
+			if ($this->isColVisible($i)) {
 				$firstCol = $i;
 				break;
 			}
@@ -233,7 +236,7 @@ class Parser {
 
 		$out = [];
 		set_error_handler(function () use ($data, $out) {
-			echo '<pre>'; echo "Notice when parsing time cell: $data"; echo '</pre>';
+			echo "Notice when parsing time cell: $data" . PHP_EOL;
 		}, E_WARNING | E_NOTICE);
 
 		$parts = explode('-', $data);
@@ -252,6 +255,16 @@ class Parser {
 		$dimensions = $this->sheet->getRowDimension($row);
 
 		if ($dimensions->getVisible() && $dimensions->getRowHeight() > 5) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private function isColVisible($col) {
+		$dimensions = $this->sheet->getColumnDimension(PHPExcel_Cell::stringFromColumnIndex($col));
+
+		if ($dimensions->getVisible() && $dimensions->getWidth() > 0.5) {
 			return true;
 		} else {
 			return false;

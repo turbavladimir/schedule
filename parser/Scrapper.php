@@ -56,7 +56,7 @@ class Scrapper {
 			/**@var $file File*/
 			$tsFile =  $xlsFolder. basename($file->path, '.xls') . '.ts';
 
-			if (strpos($file->path, $force) !== false) { //is forced to update
+			if ($force && strpos($file->path, $force) !== false) { //is forced to update
 				$updatedFiles[] = $this->copyXls($file, $tsFile, $xlsFolder);
 			} elseif (file_exists($tsFile)) { //check timestamp of xls file
 				$ts = file_get_contents($tsFile); //read timestamp of cache xls file
