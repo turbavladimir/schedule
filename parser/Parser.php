@@ -66,7 +66,11 @@ class Parser {
 		$lastWeekDay = $this->sheet->getCellByColumnAndRow($firstCol, $startRow)->getValue();
 		$ranges = [];
 		$visibleRows = [];
-		for ($i = $startRow; $i < $this->sheet->getHighestRow(); $i++) {
+		for ($i = $startRow; $i <= $this->sheet->getHighestRow(); $i++) {
+			if (!$this->isRowVisible($i)) {
+				continue;
+			}
+
 			$currentValue = $this->getCellValue($firstCol, $i);
 			if ($currentValue != $lastWeekDay) {
 				if ($visibleRows) {
@@ -76,9 +80,7 @@ class Parser {
 				$visibleRows = [];
 			}
 
-			if ($this->isRowVisible($i)) {
-				$visibleRows[] = $i;
-			}
+			$visibleRows[] = $i;
 		}
 
 		return $ranges;
