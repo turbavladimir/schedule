@@ -73,7 +73,7 @@ class Parser {
 
 			$currentValue = $this->getCellValue($firstCol, $i);
 			if ($currentValue != $lastWeekDay) {
-				if ($visibleRows) {
+				if ($visibleRows && end($visibleRows) - $visibleRows[0]) {
 					$ranges[] = ['start' => $visibleRows[0], 'end' => end($visibleRows),  'name' => $lastWeekDay];
 					$lastWeekDay = $currentValue;
 				}
@@ -99,9 +99,6 @@ class Parser {
 	public function getCallsSchedule($timeCol, $startRow, $endRow) {
 		$output = [];
 		for ($i = $startRow; $i <= $endRow; $i++) {
-//			if ($this->getCellValue($timeCol, $i) == NULL) {//TODO: remove later if everything works
-//				continue;
-//			}
 			if ($this->isMerged($timeCol, $i) !== false) {
 				$output[] = $this->timeCellToArray($this->getCellValue($timeCol, $i));
 				$timeBorders = $this->getBorderRowsOfMergedCell($timeCol, $i);
@@ -114,7 +111,7 @@ class Parser {
 			}
 		}
 
-		return $output;
+		return array_filter($output);
 	}
 
 	public function getSchedule($timeCol, $itemCol, $startRow, $endRow) {
@@ -233,7 +230,7 @@ class Parser {
 
 	private function timeCellToArray($data) {
 		if (!$data) {
-			return ['start' => 0, 'end' => 0];
+			return false;
 		}
 
 		$out = [];
@@ -250,6 +247,7 @@ class Parser {
 
 		$out =  ['start' => $start[0] * 60 + $start[1], 'end' => $end[0] * 60 + $end[1]];
 		restore_error_handler();
+
 		return $out;
 	}
 

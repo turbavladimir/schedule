@@ -1,15 +1,16 @@
 <?php
-//TODO: implement important errors handling(try catch)
-
 global $lastGen;
 $lastGen['start'] = time();
 $lastGen['error'] = false;
 
 //load app settings
-$debug_group = '';
 if (! @include'../settings/app.php') {
 	require_once '../settings/app.default.php';
 	$debug_group = '.'; //use dot to force cache update for all groups
+}
+
+if (!isset($debug_group)) {
+	$debug_group = '';
 }
 
 //create cache folders if they do not exist
@@ -50,7 +51,7 @@ if ($updatedFiles) {
 
 		$weekDayRanges = $parser->getWeekDayRanges($groupsRow + 1);
 		foreach ($groupList as $group) {
-			if ($group['name'] == $debug_group) {
+			if (strpos($group['name'], $debug_group) !== false) {
 				echo 'Group debug ready' . PHP_EOL;
 			}
 			if ($debug_group) {
