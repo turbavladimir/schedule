@@ -22,7 +22,7 @@ $db = DBHelper::get();
 	<link rel="stylesheet" href="css/loader.min.css">
 	<link rel="stylesheet" href="css/modal.min.css">
 	<link rel="stylesheet" href="css/popup.min.css">
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style.css?t=<?=filemtime('css/style.css')?>">>
 </head>
 <body>
 <div class="ui text container">
