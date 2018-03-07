@@ -20,6 +20,7 @@ td.time {
 p.time {
 	margin: 0;
 	text-align: center;
+	white-space: nowrap
 }
 .container {
 	margin: 20px auto !important;

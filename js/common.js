@@ -13,6 +13,7 @@ function updateClock() {
 
 	clock.html(days[day]+', '+months[d.getMonth()]+' '+d.getDate()+', '+hour+':'+min);
 	setInterval(updateClock, (60 - d.getSeconds()) * 1000);
+	delete d;
 }
 
 updateClock();
@@ -46,13 +47,13 @@ function parserFull(response) {
 
 		for (var subject in response.days[day].schedule) {
 			content += '<tr>';
-			time = response.days[day].time[subject].split('-');
+			time = response.days[day].time[subject];
 			if (typeof(response.days[day].schedule[subject]) === 'string') {
-				content += '<td class="time"><p class="time">' + time[0] + '</p><p class="time">' + time[1] +
+				content += '<td class="time"><p class="time">' + time['start'] + '</p><p class="time">' + time['end'] +
 					'</p></td><td>' + response.days[day].schedule[subject] + '</td>';
 			} else {
-				content += '<td class="time" rowspan=2><p class="time">' + time[0] + '</p><p class="time">' +
-					time[1] + '</p></td><td  class="mergedTop">' + wrap(response.days[day].schedule[subject].top) +
+				content += '<td class="time" rowspan=2><p class="time">' + time['start'] + '</p><p class="time">' +
+					time['end'] + '</p></td><td  class="mergedTop">' + wrap(response.days[day].schedule[subject].top) +
 					'</td></tr><tr><td  class="mergedBottom">' + wrap(response.days[day].schedule[subject].bottom) + '</td>';
 			}
 			content += '</tr>'
@@ -71,9 +72,9 @@ function parserShort(response) {
 	for (var day in response.days) {
 		content += '<table class="ui celled table unstackable"><thead><tr><th colspan=2>' + days[day] + '</th></tr></thead><tbody>';
 		for (var j = 0; j < response.days[day].schedule.length; j++) {
-			time = response.days[day].time[j].split('-');
-			content += '<tr><td class="time"><p class="time">' + time[0] + '</p><p class="time">' +
-				time[1] + '</p></td><td>' + response.days[day].schedule[j] + '</td></tr>';
+			time = response.days[day].time[j];
+			content += '<tr><td class="time"><p class="time">' + time['start'] + '</p><p class="time">' +
+				time['end'] + '</p></td><td>' + response.days[day].schedule[j] + '</td></tr>';
 		}
 		content += '</tbody></table>';
 	}

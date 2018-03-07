@@ -19,6 +19,7 @@ if (!@include'../settings/app.php') {
 require_once '../php/Utils.php';
 
 function getDay($weekday, $weekTypeNum = false) {
+	global $restTime, $classLength;
 	$db = DBHelper::get();
 	$rawDay = $db->getGroupSchedule($db->escape($_REQUEST['group']), $weekday, $weekTypeNum);
 
@@ -34,7 +35,7 @@ function getDay($weekday, $weekTypeNum = false) {
 			}
 		}
 		$day['schedule'][] = $class;
-		$day['time'][] = Utils::formatMinutesOfDay($item['start']) . '-' . Utils::formatMinutesOfDay($item['end']);
+		$day['time'][] = Utils::formatTime($item['start'], $item['end'], $restTime, $classLength);
 	}
 
 	return $day;
@@ -59,7 +60,6 @@ if (isset($_REQUEST['short'])) {
 	}
 }
 
-
 $json['lowWeek'] = Utils::getWeekTypeNum($invertWeekType) == 1;
 $json['days'] = array_filter($json['days']);
 $json['updated']['update'] = date('Y-m-d H:i:s', Utils::cacheTime($_REQUEST['group'], $cacheDir));
@@ -67,7 +67,7 @@ $json['updated']['update'] = date('Y-m-d H:i:s', Utils::cacheTime($_REQUEST['gro
 if (is_file("$cacheDir/lastgen")) {
 	$lastGen = unserialize(file_get_contents("$cacheDir/lastgen"));
 	$json['updated']['check'] = date('Y-m-d H:i:s', $lastGen['end']);
-	$json['updated']['error'] = $lastGen['error']; //TODO: implement showing of error notification
+	$json['updated']['error'] = $lastGen['error'];
 }
 
 echo json_encode($json, JSON_UNESCAPED_UNICODE);

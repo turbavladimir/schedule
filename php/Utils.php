@@ -20,6 +20,19 @@ class Utils {
 		return "$hours:" . sprintf("%02d", $minutes);
 	}
 
+	static public function formatTime($start, $end, $rest = false, $classLength = false) {
+		$startStr = self::formatMinutesOfDay($start);
+		$endStr = self::formatMinutesOfDay($end);
+
+		if ($rest && $classLength && $end - $start == $classLength) {
+			$halfLength = ($end - $start - $rest) / 2;
+			$startStr .= '-' . self::formatMinutesOfDay($start + $halfLength);
+			$endStr = self::formatMinutesOfDay($end - $halfLength) . '-' . $endStr;
+		}
+
+		return ['start' => $startStr, 'end' => $endStr];
+	}
+
 	static public function getWeekTypeNum($invert = false, $weekNum = false) {
 		if ($weekNum === false) {
 			$weekNum = date('W');
