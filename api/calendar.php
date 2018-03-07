@@ -6,13 +6,18 @@ if ((!isset($_REQUEST['group']) || !$_REQUEST['group'])) {
 	die(json_encode(['error' => 'no group specified']));
 }
 
+require_once '../php/DBHelper.php';
+$db = DBHelper::get();
+
+if (!$db->groupExsist($db->escape($_REQUEST['group']))) {
+	die(json_encode(['error' => 'group doesn\'t exist']));
+}
+
 if (!@include'../settings/app.php') {
 	require_once '../settings/app.default.php';
 }
 
 require_once '../php/Utils.php';
-require_once "../php/DBHelper.php";
-$db = DBHelper::get();
 
 $days = [];
 for ($weekday = 0; $weekday < 6; $weekday++) {

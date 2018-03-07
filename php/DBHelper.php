@@ -129,4 +129,13 @@ class DBHelper {
 
 		return $day;
 	}
+
+	public function groupExsist($group) {
+		$res = $this->db->query("SELECT COUNT(*) FROM groups WHERE `name`='$group'");
+		if ($res === false) {
+			throw new Exception('Failed to execute query: ' . $this->db->error);
+		}
+
+		return boolval($res->fetch_row()[0]);
+	}
 }
